@@ -1,3 +1,7 @@
+body {
+    font-family: Verdana, Geneva, Tahoma, sans-serif;
+}
+
 .wrapper {
     width: 500px;
     height: 400px;
@@ -15,7 +19,6 @@
     -ms-transform: translate(-50%, -50%);
     transform: translate(-50%, -50%);
     height: 100px;
-    font-family: Verdana, Geneva, Tahoma, sans-serif;
     font-size: 35px;
     font-weight: bold;
 }
@@ -72,6 +75,13 @@
     opacity: 70%;
     border-radius: 20px;
 }
+
+.marker {
+    margin: auto;
+    font-size: 75px;
+    font-weight: bolder;
+}
+
 
 .board-cell:hover {
     opacity: 100%;
