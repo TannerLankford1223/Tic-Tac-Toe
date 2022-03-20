@@ -26,7 +26,7 @@ const gameBoard = (() => {
 const displayController = (() => {
     let playerMark: string = MARK;
     const cells: NodeListOf<Element> = document.querySelectorAll('.board-cell');
-    const restartButton = document.querySelector('.restart');
+    const restartButton : Element | null = document.querySelector('#restart');
     const cellFields: NodeListOf<Element> = document.querySelectorAll('.marker');
 
     // Adds the players marker to the cell field
@@ -45,9 +45,14 @@ const displayController = (() => {
         }
     }
 
-    const restart = (e: Event) => {
+    const restart = () => {
+        let i = 0;
+
         cellFields.forEach((cellField : Element) => {
             (cellField as HTMLElement).innerText = '';
+            gameBoard.tiles[i] = '';
+
+            i++;
         });
     }
 

@@ -23,7 +23,7 @@ const gameBoard = (() => {
 const displayController = (() => {
     let playerMark = MARK;
     const cells = document.querySelectorAll('.board-cell');
-    const restartButton = document.querySelector('.restart');
+    const restartButton = document.querySelector('#restart');
     const cellFields = document.querySelectorAll('.marker');
     // Adds the players marker to the cell field
     const populateCell = (e) => {
@@ -39,9 +39,12 @@ const displayController = (() => {
             console.log("Event was null");
         }
     };
-    const restart = (e) => {
+    const restart = () => {
+        let i = 0;
         cellFields.forEach((cellField) => {
             cellField.innerText = '';
+            gameBoard.tiles[i] = '';
+            i++;
         });
     };
     // Adds event listeners before parent module is initialized
