@@ -1,0 +1,81 @@
+.wrapper {
+    width: 500px;
+    height: 400px;
+    margin: 100px auto 0px auto;
+    display: flex;
+    text-align: center;
+    border-radius: 15px;
+}
+
+.player-btns {
+    margin: 0;
+    position: absolute;
+    top: 10%;
+    left: 50%;
+    -ms-transform: translate(-50%, -50%);
+    transform: translate(-50%, -50%);
+    height: 100px;
+    font-family: Verdana, Geneva, Tahoma, sans-serif;
+    font-size: 35px;
+    font-weight: bold;
+}
+
+.btn {
+    border-radius: 20px;
+    opacity: 80%;
+    border-style: none;
+    width: 200px;
+    height: 45px;
+    font-weight: bold;
+    font-size: 20px;
+    background-color: lightgray;
+}
+
+.btn:hover {
+    opacity: 90%;
+}
+
+.btn:active {
+    opacity: 100%;
+}
+
+#player-1 {
+    background-color: cornflowerblue;
+}
+
+#player-2 {
+    background-color: coral;
+}
+
+.restart-btn {
+    margin: auto 43% auto;
+}
+
+.gameboard {
+    margin: auto;
+    display: grid;
+    justify-content: center;
+    width: 100%;
+    position: relative;
+    grid-template-rows: repeat(3, minmax(75px, 100px));
+    grid-template-columns: repeat(3, minmax(75px, 100px));
+    gap: 12px;
+    background-color: white;
+
+}
+
+.board-cell {
+    display: flex;
+    width: 100px;
+    height: 100px;
+    background-color: #f1f1f1;
+    opacity: 70%;
+    border-radius: 20px;
+}
+
+.board-cell:hover {
+    opacity: 100%;
+    background-color: #f1f1f1;
+    box-shadow: 0px 0px 3px 3px #f1f1f1;
+    -webkit-box-shadow: 0px 0px 3px 3px #f1f1f1;
+}
