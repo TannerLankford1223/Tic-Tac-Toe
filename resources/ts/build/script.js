@@ -1,10 +1,10 @@
 "use strict";
 const MARK = 'O';
 const gameBoard = (() => {
-    let tiles = ['', '', '', '', '', '', '', '', '',];
+    let boardPositions = ['', '', '', '', '', '', '', '', ''];
     const placeMark = (index, playerMark) => {
         if (isEmpty(index)) {
-            tiles[index] = playerMark;
+            boardPositions[index] = playerMark;
             return true;
         }
         else {
@@ -12,10 +12,10 @@ const gameBoard = (() => {
         }
     };
     const isEmpty = (index) => {
-        return tiles[index] === '';
+        return boardPositions[index] === '';
     };
     return {
-        tiles,
+        boardPositions,
         placeMark,
         isEmpty
     };
@@ -27,24 +27,33 @@ const displayController = (() => {
     const cellFields = document.querySelectorAll('.marker');
     // Adds the players marker to the cell field
     const populateCell = (e) => {
-        if (e !== null) {
-            let index = Number(e.target.dataset.cell);
-            console.log("clicked on index: " + index);
-            const cellField = e.target.querySelector('.marker');
-            if (gameBoard.placeMark(index, playerMark)) {
+        let cell = e.target;
+        let index = Number(cell.dataset.index);
+        console.log("clicked on index: " + index);
+        // Gets the text field of the board-cell
+        const cellField = cell.querySelector('.marker');
+        if (gameBoard.placeMark(index, playerMark)) {
+            if (cellField !== null) {
                 cellField.innerText = playerMark;
+                return true;
+            }
+            else {
+                console.log("Could not retrieve cellField");
             }
         }
-        else {
-            console.log("Event was null");
-        }
+        return false;
     };
     const restart = () => {
         let i = 0;
         cellFields.forEach((cellField) => {
-            cellField.innerText = '';
-            gameBoard.tiles[i] = '';
-            i++;
+            if (cellField !== null) {
+                cellField.innerText = '';
+                gameBoard.boardPositions[i] = '';
+                i++;
+            }
+            else {
+                console.log("Could not retrieve cellField");
+            }
         });
     };
     // Adds event listeners before parent module is initialized

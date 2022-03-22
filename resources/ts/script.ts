@@ -1,11 +1,11 @@
 const MARK = 'O';
 
 const gameBoard = (() => {
-    let tiles: string[] = ['', '', '', '', '', '', '', '', '',];
+    let boardPositions: string[] = ['', '', '', '', '', '', '', '', ''];
 
     const placeMark = (index: number, playerMark: string) => {
         if (isEmpty(index)) {
-            tiles[index] = playerMark;
+            boardPositions[index] = playerMark;
             return true;
         } else {
             return false;
@@ -13,11 +13,11 @@ const gameBoard = (() => {
     }
 
     const isEmpty = (index: number) => {
-        return tiles[index] === '';
+        return boardPositions[index] === '';
     };
 
     return {
-        tiles,
+        boardPositions,
         placeMark,
         isEmpty
     }
@@ -25,40 +25,51 @@ const gameBoard = (() => {
 
 const displayController = (() => {
     let playerMark: string = MARK;
-    const cells: NodeListOf<Element> = document.querySelectorAll('.board-cell');
-    const restartButton : Element | null = document.querySelector('#restart');
-    const cellFields: NodeListOf<Element> = document.querySelectorAll('.marker');
+    const cells: NodeListOf<HTMLAnchorElement> = document.querySelectorAll<HTMLAnchorElement>('.board-cell');
+    const restartButton: HTMLElement | null = document.querySelector<HTMLElement>('#restart');
+    const cellFields: NodeListOf<HTMLAnchorElement> = document.querySelectorAll<HTMLAnchorElement>('.marker');
 
     // Adds the players marker to the cell field
-    const populateCell = (e: Event) => {
-        if (e !== null) {
-            let index: number = Number((e.target as HTMLElement).dataset.cell);
-            console.log("clicked on index: " + index);
+    const populateCell = (e : Event) => {
+        let cell: HTMLElement = e.target as HTMLElement;
+        let index: number = Number(cell.dataset.index);
+        console.log("clicked on index: " + index);
 
-            const cellField = (e.target as HTMLElement).querySelector('.marker');
+        // Gets the text field of the board-cell
+        const cellField : HTMLElement | null = cell.querySelector('.marker');
 
-            if (gameBoard.placeMark(index, playerMark)) {
-                (cellField as HTMLElement).innerText = playerMark;
+        if (gameBoard.placeMark(index, playerMark)) {
+            if (cellField !== null) {
+                cellField.innerText = playerMark;
+
+                return true;
+            } else {
+                console.log("Could not retrieve cellField");
             }
-        } else {
-            console.log("Event was null");
         }
+        
+        return false;
     }
 
     const restart = () => {
         let i = 0;
 
-        cellFields.forEach((cellField : Element) => {
-            (cellField as HTMLElement).innerText = '';
-            gameBoard.tiles[i] = '';
+        cellFields.forEach((cellField: HTMLElement) => {
+            if (cellField !== null) {
+                cellField.innerText = '';
+                gameBoard.boardPositions[i] = '';
 
-            i++;
+                i++;
+            } else {
+                console.log("Could not retrieve cellField");
+            }
+        
         });
     }
 
     // Adds event listeners before parent module is initialized
     const _init = (() => {
-        cells.forEach((cell: Element) => {
+        cells.forEach((cell: HTMLElement) => {
             cell.addEventListener('click', populateCell);
         });
 
