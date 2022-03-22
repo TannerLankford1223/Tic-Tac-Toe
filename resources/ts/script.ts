@@ -1,5 +1,3 @@
-const MARK = 'O';
-
 const Player = (sign: string) => {
     let _sign = sign;
 
@@ -172,9 +170,20 @@ const gameplayController = (() => {
         }
     }
 
+    const checkForTie = () => {
+        for (let i = 0;  i < gameBoard._board.length; i++) {
+            if (gameBoard.getCell(i) === '') {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
     return {
         player1,
         player2,
-        checkForWin
+        checkForWin,
+        checkForTie
     }
 })();
