@@ -24,16 +24,27 @@ const gameBoard = (() => {
         return _board[index];
     }
 
+    const getBoard = () => {
+        return _board;
+    }
+
 
     const isEmpty = (index: number) => {
         return _board[index] === '';
     };
 
+    const clearBoard = () => {
+        for (let i = 0; i < _board.length; i++) {
+            _board[i] = '';
+        }
+    }
+
     return {
-        _board,
         setCell,
         getCell,
-        isEmpty
+        getBoard,
+        isEmpty,
+        clearBoard
     }
 })();
 
@@ -73,7 +84,7 @@ const displayController = (() => {
         cellFields.forEach((cellField: HTMLElement) => {
             if (cellField !== null) {
                 cellField.innerText = '';
-                gameBoard._board[i] = '';
+                gameBoard.clearBoard();
 
                 i++;
             } else {
@@ -171,7 +182,7 @@ const gameplayController = (() => {
     }
 
     const checkForTie = () => {
-        for (let i = 0;  i < gameBoard._board.length; i++) {
+        for (let i = 0;  i < gameBoard.getBoard.length; i++) {
             if (gameBoard.getCell(i) === '') {
                 return false;
             }
