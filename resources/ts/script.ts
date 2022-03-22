@@ -1,11 +1,21 @@
 const MARK = 'O';
 
+const Player = (sign : string) => {
+    let _sign = sign;
+
+    const getSign = () => _sign;
+
+    return {
+        getSign
+    }
+};
+
 const gameBoard = (() => {
     let boardPositions: string[] = ['', '', '', '', '', '', '', '', ''];
 
-    const placeMark = (index: number, playerMark: string) => {
+    const placeMark = (index: number, player : any) => {
         if (isEmpty(index)) {
-            boardPositions[index] = playerMark;
+            boardPositions[index] = player.getSign();
             return true;
         } else {
             return false;
