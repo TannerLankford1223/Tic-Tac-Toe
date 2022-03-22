@@ -99,4 +99,11 @@ const displayController = (() => {
     }
 })();
 
+const gameplayController = (() => {
+    let player1 = Player('X');
+    let player2 = Player('O');
+
+    
+})();
+
 
