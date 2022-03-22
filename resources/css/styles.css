@@ -74,6 +74,7 @@ body {
     background-color: #f1f1f1;
     opacity: 70%;
     border-radius: 20px;
+    cursor: pointer;
 }
 
 .marker {
