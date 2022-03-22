@@ -9,7 +9,7 @@ const Player = (sign) => {
 const gameBoard = (() => {
     let _board = ['', '', '', '', '', '', '', '', ''];
     const setCell = (index, player) => {
-        if (isEmpty(index)) {
+        if (_isEmpty(index)) {
             _board[index] = player.getSign();
             return true;
         }
@@ -23,7 +23,7 @@ const gameBoard = (() => {
     const getBoard = () => {
         return _board;
     };
-    const isEmpty = (index) => {
+    const _isEmpty = (index) => {
         return _board[index] === '';
     };
     const clearBoard = () => {
@@ -35,7 +35,6 @@ const gameBoard = (() => {
         setCell,
         getCell,
         getBoard,
-        isEmpty,
         clearBoard
     };
 })();
@@ -83,12 +82,7 @@ const displayController = (() => {
         });
         restartButton.addEventListener('click', restart);
     })();
-    return {
-        player,
-        cells,
-        populateCell,
-        restart
-    };
+    return {};
 })();
 const gameplayController = (() => {
     let player1 = Player('X');

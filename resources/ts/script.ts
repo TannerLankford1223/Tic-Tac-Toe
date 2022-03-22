@@ -12,7 +12,7 @@ const gameBoard = (() => {
     let _board: string[] = ['', '', '', '', '', '', '', '', ''];
 
     const setCell = (index: number, player: any) => {
-        if (isEmpty(index)) {
+        if (_isEmpty(index)) {
             _board[index] = player.getSign();
             return true;
         } else {
@@ -29,7 +29,7 @@ const gameBoard = (() => {
     }
 
 
-    const isEmpty = (index: number) => {
+    const _isEmpty = (index: number) => {
         return _board[index] === '';
     };
 
@@ -43,7 +43,6 @@ const gameBoard = (() => {
         setCell,
         getCell,
         getBoard,
-        isEmpty,
         clearBoard
     }
 })();
@@ -104,10 +103,7 @@ const displayController = (() => {
     })();
 
     return {
-        player,
-        cells,
-        populateCell,
-        restart
+        
     }
 })();
 
