@@ -1,6 +1,6 @@
 const MARK = 'O';
 
-const Player = (sign : string) => {
+const Player = (sign: string) => {
     let _sign = sign;
 
     const getSign = () => _sign;
@@ -11,24 +11,29 @@ const Player = (sign : string) => {
 };
 
 const gameBoard = (() => {
-    let boardPositions: string[] = ['', '', '', '', '', '', '', '', ''];
+    let _board: string[] = ['', '', '', '', '', '', '', '', ''];
 
-    const placeMark = (index: number, player : any) => {
+    const setCell = (index: number, player: any) => {
         if (isEmpty(index)) {
-            boardPositions[index] = player.getSign();
+            _board[index] = player.getSign();
             return true;
         } else {
             return false;
         }
     }
 
+    const getCell = (index: number) => {
+        return _board[index];
+    }
+
+
     const isEmpty = (index: number) => {
-        return boardPositions[index] === '';
+        return _board[index] === '';
     };
 
     return {
-        boardPositions,
-        placeMark,
+        _board,
+        setCell,
         isEmpty
     }
 })();
@@ -40,15 +45,15 @@ const displayController = (() => {
     const cellFields: NodeListOf<HTMLAnchorElement> = document.querySelectorAll<HTMLAnchorElement>('.marker');
 
     // Adds the players marker to the cell field
-    const populateCell = (e : Event) => {
+    const populateCell = (e: Event) => {
         let cell: HTMLElement = e.target as HTMLElement;
         let index: number = Number(cell.dataset.index);
         console.log("clicked on index: " + index);
 
         // Gets the text field of the board-cell
-        const cellField : HTMLElement | null = cell.querySelector('.marker');
+        const cellField: HTMLElement | null = cell.querySelector('.marker');
 
-        if (gameBoard.placeMark(index, playerMark)) {
+        if (gameBoard.setCell(index, playerMark)) {
             if (cellField !== null) {
                 cellField.innerText = playerMark;
 
@@ -57,7 +62,7 @@ const displayController = (() => {
                 console.log("Could not retrieve cellField");
             }
         }
-        
+
         return false;
     }
 
@@ -67,13 +72,13 @@ const displayController = (() => {
         cellFields.forEach((cellField: HTMLElement) => {
             if (cellField !== null) {
                 cellField.innerText = '';
-                gameBoard.boardPositions[i] = '';
+                gameBoard._board[i] = '';
 
                 i++;
             } else {
                 console.log("Could not retrieve cellField");
             }
-        
+
         });
     }
 

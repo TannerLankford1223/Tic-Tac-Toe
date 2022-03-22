@@ -1,22 +1,32 @@
 "use strict";
 const MARK = 'O';
+const Player = (sign) => {
+    let _sign = sign;
+    const getSign = () => _sign;
+    return {
+        getSign
+    };
+};
 const gameBoard = (() => {
-    let boardPositions = ['', '', '', '', '', '', '', '', ''];
-    const placeMark = (index, playerMark) => {
+    let _board = ['', '', '', '', '', '', '', '', ''];
+    const setCell = (index, player) => {
         if (isEmpty(index)) {
-            boardPositions[index] = playerMark;
+            _board[index] = player.getSign();
             return true;
         }
         else {
             return false;
         }
     };
+    const getCell = (index) => {
+        return _board[index];
+    };
     const isEmpty = (index) => {
-        return boardPositions[index] === '';
+        return _board[index] === '';
     };
     return {
-        boardPositions,
-        placeMark,
+        _board,
+        setCell,
         isEmpty
     };
 })();
@@ -32,7 +42,7 @@ const displayController = (() => {
         console.log("clicked on index: " + index);
         // Gets the text field of the board-cell
         const cellField = cell.querySelector('.marker');
-        if (gameBoard.placeMark(index, playerMark)) {
+        if (gameBoard.setCell(index, playerMark)) {
             if (cellField !== null) {
                 cellField.innerText = playerMark;
                 return true;
@@ -48,7 +58,7 @@ const displayController = (() => {
         cellFields.forEach((cellField) => {
             if (cellField !== null) {
                 cellField.innerText = '';
-                gameBoard.boardPositions[i] = '';
+                gameBoard._board[i] = '';
                 i++;
             }
             else {
