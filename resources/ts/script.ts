@@ -9,10 +9,12 @@ const Player = (sign: string) => {
 };
 
 const gameBoard = (() => {
-    let _board: string[] = ['', '', '', '', '', '', '', '', ''];
+    let _board: (string | undefined)[] = new Array(9);
 
     const setCell = (index: number, player: any) => {
         if (_isEmpty(index)) {
+            const cell = document.querySelector(`.gameboard div:nth-child(${index + 1}) span`);
+            cell!.textContent = player.getSign();
             _board[index] = player.getSign();
             return true;
         } else {
@@ -30,12 +32,12 @@ const gameBoard = (() => {
 
 
     const _isEmpty = (index: number) => {
-        return _board[index] === '';
+        return _board[index] === undefined;
     };
 
     const clearBoard = () => {
         for (let i = 0; i < _board.length; i++) {
-            _board[i] = '';
+            _board[i] = undefined;
         }
     }
 
@@ -47,74 +49,52 @@ const gameBoard = (() => {
     }
 })();
 
-const displayController = (() => {
-    // Demo value for testing
-    let player = Player('X');
-
-    const cells: NodeListOf<HTMLAnchorElement> = document.querySelectorAll<HTMLAnchorElement>('.board-cell');
-    const restartButton: HTMLElement | null = document.querySelector<HTMLElement>('#restart');
-    const cellFields: NodeListOf<HTMLAnchorElement> = document.querySelectorAll<HTMLAnchorElement>('.marker');
-
-    // Adds the players marker to the cell field
-    const populateCell = (e: Event) => {
-        let cell: HTMLElement = e.target as HTMLElement;
-        let index: number = Number(cell.dataset.index);
-        console.log("clicked on index: " + index);
-
-        // Gets the text field of the board-cell
-        const cellField: HTMLElement | null = cell.querySelector('.marker');
-
-        if (gameBoard.setCell(index, player)) {
-            if (cellField !== null) {
-                cellField.innerText = player.getSign();
-
-                return true;
-            } else {
-                console.log("Could not retrieve cellField");
-            }
-        }
-
-        return false;
-    }
-
-    const restart = () => {
-        let i = 0;
-
-        cellFields.forEach((cellField: HTMLElement) => {
-            if (cellField !== null) {
-                cellField.innerText = '';
-                gameBoard.clearBoard();
-
-                i++;
-            } else {
-                console.log("Could not retrieve cellField");
-            }
-
-        });
-    }
-
-    // Adds event listeners before parent module is initialized
-    const _init = (() => {
-        cells.forEach((cell: HTMLElement) => {
-            cell.addEventListener('click', populateCell);
-        });
-
-        restartButton!.addEventListener('click', restart);
-    })();
-    
-})();
-
 const gameplayController = (() => {
     let player1 = Player('X');
     let player2 = Player('O');
+    let gameOver = false;
+    let _currPlayer = player1;
+
+    const _sleep = (ms: number) => {
+        return new Promise(resolve => setTimeout(resolve, ms));
+    }
+
+    const playRound = (index: number) => {
+        gameBoard.setCell(index, _currPlayer);
+        if (checkForWin()) {
+            (async() => {
+                await _sleep(500 + (Math.random() * 500));
+                endGame(_currPlayer.getSign());
+            })();
+        } else if (checkForTie()) {
+            (async () => {
+                await _sleep(500 + (Math.random() * 500));
+                endGame("Draw");
+            })
+        } else {
+            changeCurrPlayer;
+        }
+    }
+
+    const endGame = (sign: string) => {
+
+    }
+
+    const getCurrPlayer = () => {
+        return _currPlayer;
+    }
+
+    const changeCurrPlayer = () => {
+        _currPlayer = (_currPlayer === player1) ? player2 : player1;
+    }
 
     // Checks if a player has filled a diagonal and returns a boolean.
     const _checkDiagonals = () => {
-        const diagonal1: string[] = [gameBoard.getCell(0),
+        const diagonal1: (string | undefined)[] = [gameBoard.getCell(0),
         gameBoard.getCell(4),
         gameBoard.getCell(8)];
 
-        const diagonal2: string[] = [gameBoard.getCell(2),
+        const diagonal2: (string | undefined)[] = [gameBoard.getCell(2),
         gameBoard.getCell(4),
         gameBoard.getCell(6)];
 
@@ -134,7 +114,7 @@ const gameplayController = (() => {
     // Checks if player has filled a column and returns a boolean
     const _checkColumns = () => {
         for (let i = 0; i < 3; i++) {
-            let column: string[] = [];
+            let column: (string | undefined)[] = [];
             for (let j = 0; j < 3; j++) {
                 column.push(gameBoard.getCell(i + 3 * j));
             }
@@ -143,7 +123,7 @@ const gameplayController = (() => {
                 column.every(cell => cell === 'O')) {
                 console.log('Column Filled');
                 return true;
-            } 
+            }
         }
 
         return false;
@@ -152,7 +132,7 @@ const gameplayController = (() => {
     // Checks if player has filled a row and returns a boolean
     const _checkRows = () => {
         for (let i = 0; i < 3; i++) {
-            let row: string[] = [];
+            let row: (string | undefined)[] = [];
             for (let j = i * 3; j < i * 3 + 3; j++) {
                 row.push(gameBoard.getCell(j));
             }
@@ -176,19 +156,79 @@ const gameplayController = (() => {
     }
 
     const checkForTie = () => {
-        for (let i = 0;  i < gameBoard.getBoard.length; i++) {
-            if (gameBoard.getCell(i) === '') {
-                return false;
-            }
-        }
-
-        return true;
+        return false;
     }
+
+    // const _init = (() => {
+    //     playGame();
+    // })();
 
     return {
-        player1,
-        player2,
+        getCurrPlayer,
+        changeCurrPlayer,
         checkForWin,
-        checkForTie
+        checkForTie,
+        // playGame,
+        playRound
     }
+})();
+
+
+const displayController = (() => {
+
+    const cells: NodeListOf<HTMLAnchorElement> = document.querySelectorAll<HTMLAnchorElement>('.board-cell');
+    const restartButton: HTMLElement | null = document.querySelector<HTMLElement>('#restart');
+    const cellFields: NodeListOf<HTMLAnchorElement> = document.querySelectorAll<HTMLAnchorElement>('.marker');
+
+    // Adds the players marker to the cell field
+    const populateCell = (e: Event) => {
+        const board: HTMLAnchorElement[] = Array.from(document.querySelectorAll<HTMLAnchorElement>('.board-cell'));
+        let player = gameplayController.getCurrPlayer();
+        let cell: HTMLElement = e.target as HTMLElement;
+        let index: number = Number(cell.dataset.index);
+        console.log("clicked on index: " + index);
+
+        // Gets the text field of the board-cell
+        const cellField: HTMLElement | null = cell.querySelector('.marker');
+
+        if (gameBoard.setCell(index, player)) {
+            if (cellField !== null) {
+                cellField.innerText = player.getSign();
+
+            } else {
+                console.log("Could not retrieve cellField");
+            }
+        }
+    }
+
+    const _activate = () => {
+
+    }
+
+    const restart = () => {
+        let i = 0;
+
+        cellFields.forEach((cellField: HTMLElement) => {
+            if (cellField !== null) {
+                cellField.innerText = '';
+                gameBoard.clearBoard();
+
+                i++;
+            } else {
+                console.log("Could not retrieve cellField");
+            }
+
+        });
+    }
+
+    // Adds event listeners before parent module is initialized
+    const _init = (() => {
+        for (let i = 0; i < cells.length; i++) {
+           let cell: HTMLElement = cells[i];
+            cell.addEventListener('click', gameplayController.playRound.bind(cell, i));
+        }
+
+        restartButton!.addEventListener('click', restart);
+    })();
+
 })();
