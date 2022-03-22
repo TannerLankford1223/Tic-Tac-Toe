@@ -82,7 +82,6 @@ const displayController = (() => {
         });
         restartButton.addEventListener('click', restart);
     })();
-    return {};
 })();
 const gameplayController = (() => {
     let player1 = Player('X');
