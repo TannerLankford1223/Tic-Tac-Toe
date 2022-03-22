@@ -127,6 +127,7 @@ const gameplayController = (() => {
 
         if (diagonal1.every(cell => cell === 'X') ||
             diagonal1.every(cell => cell === 'O')) {
+            console.log("Diagonal filled");
             return true;
         } else if (diagonal2.every(cell => cell === 'X') ||
             diagonal2.every(cell => cell === 'O')) {
