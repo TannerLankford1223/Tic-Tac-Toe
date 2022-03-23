@@ -52,7 +52,6 @@ const gameBoard = (() => {
 const gameplayController = (() => {
     let player1 = Player('X');
     let player2 = Player('O');
-    let gameOver = false;
     let _currPlayer = player1;
 
     const _sleep = (ms: number) => {
