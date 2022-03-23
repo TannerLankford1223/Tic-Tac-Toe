@@ -15,6 +15,9 @@ const Player = (sign) => {
         getSign
     };
 };
+const aiPlayer = (sign) => {
+    const prototype = Player(sign);
+};
 const gameBoard = (() => {
     let _board = new Array(9);
     const setCell = (index, player) => {

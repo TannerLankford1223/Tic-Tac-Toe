@@ -8,6 +8,10 @@ const Player = (sign: string) => {
     }
 };
 
+const aiPlayer = (sign: string) => {
+    const prototype = Player(sign);
+}
+
 const gameBoard = (() => {
     let _board: (string | undefined)[] = new Array(9);
 
