@@ -93,6 +93,7 @@ const gameplayController = (() => {
     };
     const _endGame = (sign) => {
         displayController.endScreen(sign);
+        turns = 0;
     };
     // Checks if a player has filled a diagonal and returns a boolean.
     const _checkDiagonals = () => {
@@ -182,6 +183,8 @@ const displayController = (() => {
     const overlay = document.querySelector('#overlay');
     const overlayText = document.querySelector('.overlay-text');
     const winnerText = document.querySelector('#winner');
+    const player1Button = document.querySelector('#player-1');
+    const player2Button = document.querySelector('#player-2');
     // End screen is displayed once the game is won or there is a tie
     const endScreen = (sign) => {
         let text;
@@ -208,6 +211,22 @@ const displayController = (() => {
             }
         });
     };
+    const togglePlayer = (e) => {
+        let button = e.target;
+        if (button.innerText == 'player X') {
+            button.innerText = 'computer X';
+        }
+        else if (button.innerText == 'player O') {
+            button.innerText = 'computer O';
+        }
+        else if (button.innerText === 'computer X') {
+            button.innerText = 'player X';
+        }
+        else {
+            button.innerText = 'player O';
+        }
+        restart();
+    };
     // Adds event listeners before parent module is initialized
     const _init = (() => {
         for (let i = 0; i < cells.length; i++) {
@@ -222,6 +241,8 @@ const displayController = (() => {
             winnerText.innerText = '';
             restart();
         });
+        player1Button.addEventListener('click', togglePlayer);
+        player2Button.addEventListener('click', togglePlayer);
     })();
     return {
         endScreen
