@@ -177,37 +177,12 @@ const displayController = (() => {
     const overlayText: HTMLElement | null = document.querySelector('.overlay-text');
     const winnerText: HTMLElement | null = document.querySelector('#winner');
 
-    // Adds the players marker to the cell field
-    const populateCell = (e: Event) => {
-        const board: HTMLAnchorElement[] = Array.from(document.querySelectorAll<HTMLAnchorElement>('.board-cell'));
-        let player = gameplayController.getCurrPlayer();
-        let cell: HTMLElement = e.target as HTMLElement;
-        let index: number = Number(cell.dataset.index);
-        console.log("clicked on index: " + index);
-
-        // Gets the text field of the board-cell
-        const cellField: HTMLElement | null = cell.querySelector('.marker');
-
-        if (gameBoard.setCell(index, player)) {
-            if (cellField !== null) {
-                cellField.innerText = player.getSign();
-
-            } else {
-                console.log("Could not retrieve cellField");
-            }
-        }
-    }
-
     // End screen is displayed once the game is won or there is a tie
     const endScreen = (sign: string) => {
         let text = (sign === 'Draw') ? "It's a draw!" : `The winner is`;
         overlayText!.innerText = text;
         winnerText!.innerText = sign;
         overlay!.style.display = 'block';
-    }
-
-    const _activate = () => {
-
     }
 
     const restart = () => {
