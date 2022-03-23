@@ -62,22 +62,22 @@ const gameplayController = (() => {
     const playRound = (index: number) => {
         gameBoard.setCell(index, _currPlayer);
         if (checkForWin()) {
-            (async() => {
+            (async () => {
                 await _sleep(500 + (Math.random() * 500));
-                endGame(_currPlayer.getSign());
+                _endGame(_currPlayer.getSign());
             })();
         } else if (checkForTie()) {
             (async () => {
                 await _sleep(500 + (Math.random() * 500));
-                endGame("Draw");
+                _endGame("Draw");
             })
         } else {
             changeCurrPlayer;
         }
     }
 
-    const endGame = (sign: string) => {
-
+    const _endGame = (sign: string) => {
+        displayController.endScreen(sign);
     }
 
     const getCurrPlayer = () => {
@@ -141,10 +141,10 @@ const gameplayController = (() => {
                 row.every(cell => cell === 'O')) {
                 console.log("Row filled");
                 return true;
-            } else {
-                return false;
             }
         }
+
+        return false;
     }
 
     const checkForWin = () => {
@@ -159,26 +159,23 @@ const gameplayController = (() => {
         return false;
     }
 
-    // const _init = (() => {
-    //     playGame();
-    // })();
-
     return {
         getCurrPlayer,
         changeCurrPlayer,
         checkForWin,
         checkForTie,
-        // playGame,
         playRound
     }
 })();
 
 
 const displayController = (() => {
-
     const cells: NodeListOf<HTMLAnchorElement> = document.querySelectorAll<HTMLAnchorElement>('.board-cell');
-    const restartButton: HTMLElement | null = document.querySelector<HTMLElement>('#restart');
+    const restartButton: HTMLElement | null = document.querySelector('#restart');
     const cellFields: NodeListOf<HTMLAnchorElement> = document.querySelectorAll<HTMLAnchorElement>('.marker');
+    const overlay: HTMLElement | null = document.querySelector('#overlay');
+    const overlayText: HTMLElement | null = document.querySelector('.overlay-text');
+    const winnerText: HTMLElement | null = document.querySelector('#winner');
 
     // Adds the players marker to the cell field
     const populateCell = (e: Event) => {
@@ -199,6 +196,14 @@ const displayController = (() => {
                 console.log("Could not retrieve cellField");
             }
         }
+    }
+
+    // End screen is displayed once the game is won or there is a tie
+    const endScreen = (sign: string) => {
+        let text = (sign === 'Draw') ? "It's a draw!" : `The winner is`;
+        overlayText!.innerText = text;
+        winnerText!.innerText = sign;
+        overlay!.style.display = 'block';
     }
 
     const _activate = () => {
@@ -224,11 +229,22 @@ const displayController = (() => {
     // Adds event listeners before parent module is initialized
     const _init = (() => {
         for (let i = 0; i < cells.length; i++) {
-           let cell: HTMLElement = cells[i];
+            let cell: HTMLElement = cells[i];
             cell.addEventListener('click', gameplayController.playRound.bind(cell, i));
         }
 
         restartButton!.addEventListener('click', restart);
+
+        // When the winning page is clicked restart the game
+        overlay!.addEventListener('click', () => {
+            overlay!.style.display = 'none';
+            overlayText!.innerText = '';
+            winnerText!.innerText = '';
+            restart();
+        });
     })();
 
+    return {
+        endScreen
+    }
 })();

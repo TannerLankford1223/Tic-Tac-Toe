@@ -57,37 +57,26 @@ const gameplayController = (() => {
     const _sleep = (ms) => {
         return new Promise(resolve => setTimeout(resolve, ms));
     };
-    // const playGame = () => {
-    //     while (!gameOver) {
-    //         playRound();
-    //         if (checkForWin() || checkForTie()) {
-    //             endGame(_currPlayer);
-    //         } else {
-    //             changeCurrPlayer;
-    //             continue;
-    //         }
-    //     }
-    //     console.log("Player wins!");
-    // }
     const playRound = (index) => {
         gameBoard.setCell(index, _currPlayer);
         if (checkForWin()) {
             (() => __awaiter(void 0, void 0, void 0, function* () {
                 yield _sleep(500 + (Math.random() * 500));
-                endGame(_currPlayer.getSign());
+                _endGame(_currPlayer.getSign());
             }))();
         }
         else if (checkForTie()) {
             (() => __awaiter(void 0, void 0, void 0, function* () {
                 yield _sleep(500 + (Math.random() * 500));
-                endGame("Draw");
+                _endGame("Draw");
             }));
         }
         else {
             changeCurrPlayer;
         }
     };
-    const endGame = (sign) => {
+    const _endGame = (sign) => {
+        displayController.endScreen(sign);
     };
     const getCurrPlayer = () => {
         return _currPlayer;
@@ -144,10 +133,8 @@ const gameplayController = (() => {
                 console.log("Row filled");
                 return true;
             }
-            else {
-                return false;
-            }
         }
+        return false;
     };
     const checkForWin = () => {
         if (_checkRows() || _checkColumns() || _checkDiagonals()) {
@@ -160,15 +147,11 @@ const gameplayController = (() => {
     const checkForTie = () => {
         return false;
     };
-    // const _init = (() => {
-    //     playGame();
-    // })();
     return {
         getCurrPlayer,
         changeCurrPlayer,
         checkForWin,
         checkForTie,
-        // playGame,
         playRound
     };
 })();
@@ -176,6 +159,9 @@ const displayController = (() => {
     const cells = document.querySelectorAll('.board-cell');
     const restartButton = document.querySelector('#restart');
     const cellFields = document.querySelectorAll('.marker');
+    const overlay = document.querySelector('#overlay');
+    const overlayText = document.querySelector('.overlay-text');
+    const winnerText = document.querySelector('#winner');
     // Adds the players marker to the cell field
     const populateCell = (e) => {
         const board = Array.from(document.querySelectorAll('.board-cell'));
@@ -193,6 +179,13 @@ const displayController = (() => {
                 console.log("Could not retrieve cellField");
             }
         }
+    };
+    // End screen is displayed once the game is won or there is a tie
+    const endScreen = (sign) => {
+        let text = (sign === 'Draw') ? "It's a draw!" : `The winner is`;
+        overlayText.innerText = text;
+        winnerText.innerText = sign;
+        overlay.style.display = 'block';
     };
     const _activate = () => {
     };
@@ -216,5 +209,15 @@ const displayController = (() => {
             cell.addEventListener('click', gameplayController.playRound.bind(cell, i));
         }
         restartButton.addEventListener('click', restart);
+        // When the winning page is clicked restart the game
+        overlay.addEventListener('click', () => {
+            overlay.style.display = 'none';
+            overlayText.innerText = '';
+            winnerText.innerText = '';
+            restart();
+        });
     })();
+    return {
+        endScreen
+    };
 })();
