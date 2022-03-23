@@ -9,14 +9,17 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 const Player = (sign) => {
-    let _sign = sign;
+    const _sign = sign;
+    let _isBot = false;
     const getSign = () => _sign;
+    // Changes player to a computer player
+    const toggleAI = () => _isBot = !_isBot;
+    const botStatus = () => _isBot;
     return {
-        getSign
+        getSign,
+        toggleAI,
+        botStatus
     };
-};
-const aiPlayer = (sign) => {
-    const prototype = Player(sign);
 };
 const gameBoard = (() => {
     let _board = new Array(9);
@@ -53,30 +56,35 @@ const gameBoard = (() => {
     };
 })();
 const gameplayController = (() => {
-    let player1;
-    let player2;
+    let player1 = Player('X');
+    let player2 = Player('O');
     let turns = 0;
+    let currPlayer = player1;
     const _sleep = (ms) => {
         return new Promise(resolve => setTimeout(resolve, ms));
     };
     const setPlayers = () => {
-        if (document.getElementById('player-1').innerText === 'player X') {
-            player1 = Player('X');
+        let player1ButtonText = document.getElementById('player-1');
+        let player2ButtonText = document.getElementById('player-2');
+        if (player1ButtonText.innerText === 'computer X' && !player1.botStatus()) {
+            console.log("Turning on player1 bot status");
+            player1.toggleAI();
         }
-        if (document.getElementById('player-2').innerText === 'player O') {
-            player2 = Player('O');
+        else if (player1.botStatus()) {
+            console.log("Turning off player1 bot status");
+            player1.toggleAI();
+        }
+        if (player2ButtonText.innerText === 'computer O' && !player2.botStatus()) {
+            console.log("Turning on player2 bot status");
+            player2.toggleAI();
+        }
+        else if (player2.botStatus()) {
+            console.log("Turning off player2 bot status");
+            player2.toggleAI();
         }
     };
-    const playRound = (index) => {
-        let currPlayer;
-        if (turns % 2 == 0) {
-            currPlayer = player1;
-        }
-        else {
-            currPlayer = player2;
-        }
+    const playerMove = (index) => {
         gameBoard.setCell(index, currPlayer);
-        console.log("_currPlayer: " + currPlayer.getSign());
         if (checkForWin()) {
             (() => __awaiter(void 0, void 0, void 0, function* () {
                 yield _sleep(500 + (Math.random() * 500));
@@ -89,10 +97,36 @@ const gameplayController = (() => {
                 _endGame("Draw");
             }))();
         }
-        turns++;
+        else {
+            turns++;
+            changeCurrPlayer();
+            playGame();
+        }
+    };
+    const playGame = () => {
+        if (currPlayer.botStatus()) {
+            let index = _aiChosenMove();
+            playerMove(index);
+        }
     };
     const _endGame = (sign) => {
         displayController.endScreen(sign);
+        resetTurns();
+    };
+    const _getAIMoves = () => {
+        let moves = [];
+        for (let i = 0; i < 9; i++) {
+            if (gameBoard.getCell(i) === undefined) {
+                moves.push(i);
+            }
+        }
+        return moves;
+    };
+    const _aiChosenMove = () => {
+        const moves = _getAIMoves();
+        return moves[Math.floor(Math.random() * moves.length)];
+    };
+    const resetTurns = () => {
         turns = 0;
     };
     // Checks if a player has filled a diagonal and returns a boolean.
@@ -166,13 +200,21 @@ const gameplayController = (() => {
         }
         return true;
     };
+    const changeCurrPlayer = () => {
+        currPlayer = (turns % 2 == 0) ? player1 : player2;
+        console.log("currPlayer is " + currPlayer.getSign());
+    };
     const _init = (() => {
         setPlayers();
+        playGame();
     })();
     return {
         checkForWin,
         checkForTie,
-        playRound,
+        playerMove,
+        resetTurns,
+        setPlayers,
+        changeCurrPlayer,
         _endGame
     };
 })();
@@ -209,6 +251,7 @@ const displayController = (() => {
             else {
                 console.log("Could not retrieve cellField");
             }
+            gameplayController.resetTurns();
         });
     };
     const togglePlayer = (e) => {
@@ -226,13 +269,22 @@ const displayController = (() => {
             button.innerText = 'player O';
         }
         restart();
+        gameplayController.setPlayers();
+    };
+    const makeMove = (e) => {
+        let cell = e.target;
+        let index = Number(cell.dataset.index);
+        gameplayController.playerMove(index);
+    };
+    const activate = () => {
+        for (let i = 0; i < cells.length; i++) {
+            let cell = cells[i];
+            cell.addEventListener('click', makeMove);
+        }
     };
     // Adds event listeners before parent module is initialized
     const _init = (() => {
-        for (let i = 0; i < cells.length; i++) {
-            let cell = cells[i];
-            cell.addEventListener('click', gameplayController.playRound.bind(cell, i));
-        }
+        activate();
         restartButton.addEventListener('click', restart);
         // When the winning page is clicked restart the game
         overlay.addEventListener('click', () => {
@@ -245,6 +297,7 @@ const displayController = (() => {
         player2Button.addEventListener('click', togglePlayer);
     })();
     return {
-        endScreen
+        endScreen,
+        activate,
     };
 })();
