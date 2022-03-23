@@ -83,12 +83,6 @@ const gameplayController = (() => {
     const _endGame = (sign) => {
         displayController.endScreen(sign);
     };
-    // const getCurrPlayer = () => {
-    //     return _currPlayer;
-    // }
-    // const changeCurrPlayer = () => {
-    //     _currPlayer = (_currPlayer === player1) ? player2 : player1;
-    // }
     // Checks if a player has filled a diagonal and returns a boolean.
     const _checkDiagonals = () => {
         const diagonal1 = [gameBoard.getCell(0),
