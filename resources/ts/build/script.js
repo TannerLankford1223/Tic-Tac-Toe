@@ -52,37 +52,43 @@ const gameBoard = (() => {
 const gameplayController = (() => {
     let player1 = Player('X');
     let player2 = Player('O');
-    let _currPlayer = player1;
+    let turns = 0;
     const _sleep = (ms) => {
         return new Promise(resolve => setTimeout(resolve, ms));
     };
     const playRound = (index) => {
-        gameBoard.setCell(index, _currPlayer);
+        let currPlayer;
+        if (turns % 2 == 0) {
+            currPlayer = player1;
+        }
+        else {
+            currPlayer = player2;
+        }
+        gameBoard.setCell(index, currPlayer);
+        console.log("_currPlayer: " + currPlayer.getSign());
         if (checkForWin()) {
             (() => __awaiter(void 0, void 0, void 0, function* () {
                 yield _sleep(500 + (Math.random() * 500));
-                _endGame(_currPlayer.getSign());
+                _endGame(currPlayer.getSign());
             }))();
         }
         else if (checkForTie()) {
             (() => __awaiter(void 0, void 0, void 0, function* () {
                 yield _sleep(500 + (Math.random() * 500));
                 _endGame("Draw");
-            }));
+            }))();
         }
-        else {
-            changeCurrPlayer;
-        }
+        turns++;
     };
     const _endGame = (sign) => {
         displayController.endScreen(sign);
     };
-    const getCurrPlayer = () => {
-        return _currPlayer;
-    };
-    const changeCurrPlayer = () => {
-        _currPlayer = (_currPlayer === player1) ? player2 : player1;
-    };
+    // const getCurrPlayer = () => {
+    //     return _currPlayer;
+    // }
+    // const changeCurrPlayer = () => {
+    //     _currPlayer = (_currPlayer === player1) ? player2 : player1;
+    // }
     // Checks if a player has filled a diagonal and returns a boolean.
     const _checkDiagonals = () => {
         const diagonal1 = [gameBoard.getCell(0),
@@ -144,14 +150,21 @@ const gameplayController = (() => {
         }
     };
     const checkForTie = () => {
-        return false;
+        if (checkForWin()) {
+            return false;
+        }
+        for (let i = 0; i < 9; i++) {
+            if (gameBoard.getCell(i) == undefined) {
+                return false;
+            }
+        }
+        return true;
     };
     return {
-        getCurrPlayer,
-        changeCurrPlayer,
         checkForWin,
         checkForTie,
-        playRound
+        playRound,
+        _endGame
     };
 })();
 const displayController = (() => {
@@ -163,9 +176,15 @@ const displayController = (() => {
     const winnerText = document.querySelector('#winner');
     // End screen is displayed once the game is won or there is a tie
     const endScreen = (sign) => {
-        let text = (sign === 'Draw') ? "It's a draw!" : `The winner is`;
+        let text;
+        if (sign === 'Draw') {
+            text = "It's a draw!";
+        }
+        else {
+            text = `The winner is`;
+            winnerText.innerText = sign;
+        }
         overlayText.innerText = text;
-        winnerText.innerText = sign;
         overlay.style.display = 'block';
     };
     const restart = () => {
