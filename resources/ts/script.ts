@@ -50,12 +50,22 @@ const gameBoard = (() => {
 })();
 
 const gameplayController = (() => {
-    let player1 = Player('X');
-    let player2 = Player('O');
+    let player1: any;
+    let player2: any;
     let turns: number = 0;
 
     const _sleep = (ms: number) => {
         return new Promise(resolve => setTimeout(resolve, ms));
+    }
+
+    const setPlayers = () => {
+        if (document.getElementById('player-1')!.innerText === 'player X') {
+            player1 = Player('X');
+        } 
+
+        if (document.getElementById('player-2')!.innerText === 'player O') {
+            player2 = Player('O');
+        }
     }
 
     const playRound = (index: number) => {
@@ -167,6 +177,10 @@ const gameplayController = (() => {
 
         return true;
     }
+
+    const _init = (() => {
+        setPlayers();
+    })();
 
     return {
         checkForWin,
