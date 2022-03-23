@@ -106,7 +106,7 @@ body {
 }
 
 .overlay-text {
-    margin: 200px 0px 0px 300px;
+    margin: 200px 0px 0px 550px;
     width: 100%;
     font-size: 100px;
     color: white;
@@ -114,6 +114,6 @@ body {
 }
 
 #winner {
-    margin: 0px 0px 0px 620px;
+    margin: 0px 0px 0px 900px;
     font-size: 150px;
 }
