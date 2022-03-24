@@ -58,6 +58,111 @@ const gameBoard = (() => {
     }
 })();
 
+
+const displayController = (() => {
+    const cells: NodeListOf<HTMLAnchorElement> = document.querySelectorAll<HTMLAnchorElement>('.board-cell');
+    const restartButton: HTMLElement | null = document.querySelector('#restart');
+    const cellFields: NodeListOf<HTMLAnchorElement> = document.querySelectorAll<HTMLAnchorElement>('.marker');
+    const overlay: HTMLElement | null = document.querySelector('#overlay');
+    const overlayText: HTMLElement | null = document.querySelector('.overlay-text');
+    const winnerText: HTMLElement | null = document.querySelector('#winner');
+    const player1Button: HTMLElement | null = document.querySelector('#player-1');
+    const player2Button: HTMLElement | null = document.querySelector('#player-2');
+
+    // End screen is displayed once the game is won or there is a tie
+    const endScreen = (sign: string) => {
+        let text: string;
+        if (sign === 'Draw') {
+            text = "It's a draw!"
+         } else {
+            text = `The winner is`;
+            winnerText!.innerText = sign;
+         }
+
+        overlayText!.innerText = text;
+        overlay!.style.display = 'block';
+    }
+
+    const restart = () => {
+        let i = 0;
+
+        cellFields.forEach((cellField: HTMLElement) => {
+            if (cellField !== null) {
+                cellField.innerText = '';
+                gameBoard.clearBoard();
+
+                i++;
+            } else {
+                console.log("Could not retrieve cellField");
+            }
+        gameplayController.resetTurns();
+        });
+    }
+
+    const togglePlayer = (e: Event) => {
+        let button = e.target as HTMLElement;
+
+        if (button.innerText == 'player X') {
+            button.innerText = 'computer X';
+        } else if (button.innerText == 'player O') {
+            button.innerText = 'computer O';
+        } else if (button.innerText === 'computer X') {
+            button.innerText = 'player X';
+        } else {
+            button.innerText = 'player O';
+        }
+
+        restart();
+        gameplayController.setPlayers();
+    }
+
+    const makeMove = (e: Event) => {
+        let cell: HTMLElement = e.target as HTMLElement;
+        let index = Number(cell.dataset.index);
+
+        gameplayController.playerMove(index);
+    }
+
+    const activate = () => {
+        for (let i = 0; i < cells.length; i++) {
+            let cell: HTMLElement = cells[i];
+            cell.addEventListener('click', makeMove);
+        }
+    }
+
+    const deactivate = () => {
+        for (let i = 0; i < cells.length; i++) {
+            let cell: HTMLElement = cells[i];
+            cell.removeEventListener('click', makeMove);
+        }
+    }
+
+    // Adds event listeners before parent module is initialized
+    const _init = (() => {
+        activate();
+
+        restartButton!.addEventListener('click', restart);
+
+        // When the winning page is clicked restart the game
+        overlay!.addEventListener('click', () => {
+            overlay!.style.display = 'none';
+            overlayText!.innerText = '';
+            winnerText!.innerText = '';
+            restart();
+            gameplayController.playGame();
+        });
+
+        player1Button!.addEventListener('click', togglePlayer);
+        player2Button!.addEventListener('click', togglePlayer);
+    })();
+
+    return {
+        endScreen,
+        activate,
+        deactivate
+    }
+})();
+
 const gameplayController = (() => {
     let player1: any = Player('X');
     let player2: any = Player('O');
@@ -75,7 +180,11 @@ const gameplayController = (() => {
         if (player1ButtonText!.innerText === 'computer X' && !player1.botStatus()) {
             console.log("Turning on player1 bot status");
             player1.toggleAI();
-        } else if (player1.botStatus()) {
+            // player2ButtonText!.innerText = 'player O';
+            // if (player2.botStatus()) {
+            //     player2.toggleAI();
+            // }
+        } else if (player1ButtonText!.innerText === 'player X' && player1.botStatus()) {
             console.log("Turning off player1 bot status");
             player1.toggleAI();
         }
@@ -83,10 +192,16 @@ const gameplayController = (() => {
         if (player2ButtonText!.innerText === 'computer O' && !player2.botStatus()) {
             console.log("Turning on player2 bot status");
             player2.toggleAI();
-        } else if (player2.botStatus()) {
+            // player1ButtonText!.innerText = 'player X';
+            // if (player1.botStatus()) {
+            //     player1.toggleAI();
+            // }
+        } else if (player2ButtonText!.innerText === 'player O' && player2.botStatus()) {
             console.log("Turning off player2 bot status");
             player2.toggleAI();
         }
+
+        playGame();
     }
 
     const playerMove = (index: number) => {
@@ -111,8 +226,13 @@ const gameplayController = (() => {
 
     const playGame = () => {
         if (currPlayer.botStatus()) {
+            displayController.deactivate();
             let index: number = _aiChosenMove();
-            playerMove(index);
+            setTimeout(() => {
+                playerMove(index);
+            }, 1000);
+        } else {
+            displayController.activate();
         }
     }
 
@@ -140,10 +260,11 @@ const gameplayController = (() => {
         return moves[Math.floor(Math.random() * moves.length)];
     }
 
-    
+
 
     const resetTurns = () => {
-        turns = 0; 
+        turns = 0;
+        changeCurrPlayer();
     }
 
     // Checks if a player has filled a diagonal and returns a boolean.
@@ -241,106 +362,10 @@ const gameplayController = (() => {
         checkForWin,
         checkForTie,
         playerMove,
+        playGame,
         resetTurns,
         setPlayers,
         changeCurrPlayer,
         _endGame
-    }
-})();
-
-
-const displayController = (() => {
-    const cells: NodeListOf<HTMLAnchorElement> = document.querySelectorAll<HTMLAnchorElement>('.board-cell');
-    const restartButton: HTMLElement | null = document.querySelector('#restart');
-    const cellFields: NodeListOf<HTMLAnchorElement> = document.querySelectorAll<HTMLAnchorElement>('.marker');
-    const overlay: HTMLElement | null = document.querySelector('#overlay');
-    const overlayText: HTMLElement | null = document.querySelector('.overlay-text');
-    const winnerText: HTMLElement | null = document.querySelector('#winner');
-    const player1Button: HTMLElement | null = document.querySelector('#player-1');
-    const player2Button: HTMLElement | null = document.querySelector('#player-2');
-
-    // End screen is displayed once the game is won or there is a tie
-    const endScreen = (sign: string) => {
-        let text: string;
-        if (sign === 'Draw') {
-            text = "It's a draw!"
-         } else {
-            text = `The winner is`;
-            winnerText!.innerText = sign;
-         }
-
-        overlayText!.innerText = text;
-        overlay!.style.display = 'block';
-    }
-
-    const restart = () => {
-        let i = 0;
-
-        cellFields.forEach((cellField: HTMLElement) => {
-            if (cellField !== null) {
-                cellField.innerText = '';
-                gameBoard.clearBoard();
-
-                i++;
-            } else {
-                console.log("Could not retrieve cellField");
-            }
-        gameplayController.resetTurns();
-
-        });
-    }
-
-    const togglePlayer = (e: Event) => {
-        let button = e.target as HTMLElement;
-
-        if (button.innerText == 'player X') {
-            button.innerText = 'computer X';
-        } else if (button.innerText == 'player O') {
-            button.innerText = 'computer O';
-        } else if (button.innerText === 'computer X') {
-            button.innerText = 'player X';
-        } else {
-            button.innerText = 'player O';
-        }
-
-        restart();
-        gameplayController.setPlayers();
-    }
-
-    const makeMove = (e: Event) => {
-        let cell: HTMLElement = e.target as HTMLElement;
-        let index = Number(cell.dataset.index);
-
-        gameplayController.playerMove(index);
-    }
-
-    const activate = () => {
-        for (let i = 0; i < cells.length; i++) {
-            let cell: HTMLElement = cells[i];
-            cell.addEventListener('click', makeMove);
-        }
-    }
-
-    // Adds event listeners before parent module is initialized
-    const _init = (() => {
-        activate();
-
-        restartButton!.addEventListener('click', restart);
-
-        // When the winning page is clicked restart the game
-        overlay!.addEventListener('click', () => {
-            overlay!.style.display = 'none';
-            overlayText!.innerText = '';
-            winnerText!.innerText = '';
-            restart();
-        });
-
-        player1Button!.addEventListener('click', togglePlayer);
-        player2Button!.addEventListener('click', togglePlayer);
-    })();
-
-    return {
-        endScreen,
-        activate,
     }
 })();

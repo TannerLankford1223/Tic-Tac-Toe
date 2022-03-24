@@ -55,6 +55,97 @@ const gameBoard = (() => {
         clearBoard
     };
 })();
+const displayController = (() => {
+    const cells = document.querySelectorAll('.board-cell');
+    const restartButton = document.querySelector('#restart');
+    const cellFields = document.querySelectorAll('.marker');
+    const overlay = document.querySelector('#overlay');
+    const overlayText = document.querySelector('.overlay-text');
+    const winnerText = document.querySelector('#winner');
+    const player1Button = document.querySelector('#player-1');
+    const player2Button = document.querySelector('#player-2');
+    // End screen is displayed once the game is won or there is a tie
+    const endScreen = (sign) => {
+        let text;
+        if (sign === 'Draw') {
+            text = "It's a draw!";
+        }
+        else {
+            text = `The winner is`;
+            winnerText.innerText = sign;
+        }
+        overlayText.innerText = text;
+        overlay.style.display = 'block';
+    };
+    const restart = () => {
+        let i = 0;
+        cellFields.forEach((cellField) => {
+            if (cellField !== null) {
+                cellField.innerText = '';
+                gameBoard.clearBoard();
+                i++;
+            }
+            else {
+                console.log("Could not retrieve cellField");
+            }
+            gameplayController.resetTurns();
+        });
+    };
+    const togglePlayer = (e) => {
+        let button = e.target;
+        if (button.innerText == 'player X') {
+            button.innerText = 'computer X';
+        }
+        else if (button.innerText == 'player O') {
+            button.innerText = 'computer O';
+        }
+        else if (button.innerText === 'computer X') {
+            button.innerText = 'player X';
+        }
+        else {
+            button.innerText = 'player O';
+        }
+        restart();
+        gameplayController.setPlayers();
+    };
+    const makeMove = (e) => {
+        let cell = e.target;
+        let index = Number(cell.dataset.index);
+        gameplayController.playerMove(index);
+    };
+    const activate = () => {
+        for (let i = 0; i < cells.length; i++) {
+            let cell = cells[i];
+            cell.addEventListener('click', makeMove);
+        }
+    };
+    const deactivate = () => {
+        for (let i = 0; i < cells.length; i++) {
+            let cell = cells[i];
+            cell.removeEventListener('click', makeMove);
+        }
+    };
+    // Adds event listeners before parent module is initialized
+    const _init = (() => {
+        activate();
+        restartButton.addEventListener('click', restart);
+        // When the winning page is clicked restart the game
+        overlay.addEventListener('click', () => {
+            overlay.style.display = 'none';
+            overlayText.innerText = '';
+            winnerText.innerText = '';
+            restart();
+            gameplayController.playGame();
+        });
+        player1Button.addEventListener('click', togglePlayer);
+        player2Button.addEventListener('click', togglePlayer);
+    })();
+    return {
+        endScreen,
+        activate,
+        deactivate
+    };
+})();
 const gameplayController = (() => {
     let player1 = Player('X');
     let player2 = Player('O');
@@ -69,19 +160,28 @@ const gameplayController = (() => {
         if (player1ButtonText.innerText === 'computer X' && !player1.botStatus()) {
             console.log("Turning on player1 bot status");
             player1.toggleAI();
+            // player2ButtonText!.innerText = 'player O';
+            // if (player2.botStatus()) {
+            //     player2.toggleAI();
+            // }
         }
-        else if (player1.botStatus()) {
+        else if (player1ButtonText.innerText === 'player X' && player1.botStatus()) {
             console.log("Turning off player1 bot status");
             player1.toggleAI();
         }
         if (player2ButtonText.innerText === 'computer O' && !player2.botStatus()) {
             console.log("Turning on player2 bot status");
             player2.toggleAI();
+            // player1ButtonText!.innerText = 'player X';
+            // if (player1.botStatus()) {
+            //     player1.toggleAI();
+            // }
         }
-        else if (player2.botStatus()) {
+        else if (player2ButtonText.innerText === 'player O' && player2.botStatus()) {
             console.log("Turning off player2 bot status");
             player2.toggleAI();
         }
+        playGame();
     };
     const playerMove = (index) => {
         gameBoard.setCell(index, currPlayer);
@@ -105,8 +205,14 @@ const gameplayController = (() => {
     };
     const playGame = () => {
         if (currPlayer.botStatus()) {
+            displayController.deactivate();
             let index = _aiChosenMove();
-            playerMove(index);
+            setTimeout(() => {
+                playerMove(index);
+            }, 1000);
+        }
+        else {
+            displayController.activate();
         }
     };
     const _endGame = (sign) => {
@@ -128,6 +234,7 @@ const gameplayController = (() => {
     };
     const resetTurns = () => {
         turns = 0;
+        changeCurrPlayer();
     };
     // Checks if a player has filled a diagonal and returns a boolean.
     const _checkDiagonals = () => {
@@ -212,92 +319,10 @@ const gameplayController = (() => {
         checkForWin,
         checkForTie,
         playerMove,
+        playGame,
         resetTurns,
         setPlayers,
         changeCurrPlayer,
         _endGame
-    };
-})();
-const displayController = (() => {
-    const cells = document.querySelectorAll('.board-cell');
-    const restartButton = document.querySelector('#restart');
-    const cellFields = document.querySelectorAll('.marker');
-    const overlay = document.querySelector('#overlay');
-    const overlayText = document.querySelector('.overlay-text');
-    const winnerText = document.querySelector('#winner');
-    const player1Button = document.querySelector('#player-1');
-    const player2Button = document.querySelector('#player-2');
-    // End screen is displayed once the game is won or there is a tie
-    const endScreen = (sign) => {
-        let text;
-        if (sign === 'Draw') {
-            text = "It's a draw!";
-        }
-        else {
-            text = `The winner is`;
-            winnerText.innerText = sign;
-        }
-        overlayText.innerText = text;
-        overlay.style.display = 'block';
-    };
-    const restart = () => {
-        let i = 0;
-        cellFields.forEach((cellField) => {
-            if (cellField !== null) {
-                cellField.innerText = '';
-                gameBoard.clearBoard();
-                i++;
-            }
-            else {
-                console.log("Could not retrieve cellField");
-            }
-            gameplayController.resetTurns();
-        });
-    };
-    const togglePlayer = (e) => {
-        let button = e.target;
-        if (button.innerText == 'player X') {
-            button.innerText = 'computer X';
-        }
-        else if (button.innerText == 'player O') {
-            button.innerText = 'computer O';
-        }
-        else if (button.innerText === 'computer X') {
-            button.innerText = 'player X';
-        }
-        else {
-            button.innerText = 'player O';
-        }
-        restart();
-        gameplayController.setPlayers();
-    };
-    const makeMove = (e) => {
-        let cell = e.target;
-        let index = Number(cell.dataset.index);
-        gameplayController.playerMove(index);
-    };
-    const activate = () => {
-        for (let i = 0; i < cells.length; i++) {
-            let cell = cells[i];
-            cell.addEventListener('click', makeMove);
-        }
-    };
-    // Adds event listeners before parent module is initialized
-    const _init = (() => {
-        activate();
-        restartButton.addEventListener('click', restart);
-        // When the winning page is clicked restart the game
-        overlay.addEventListener('click', () => {
-            overlay.style.display = 'none';
-            overlayText.innerText = '';
-            winnerText.innerText = '';
-            restart();
-        });
-        player1Button.addEventListener('click', togglePlayer);
-        player2Button.addEventListener('click', togglePlayer);
-    })();
-    return {
-        endScreen,
-        activate,
     };
 })();
