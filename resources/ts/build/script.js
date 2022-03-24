@@ -25,12 +25,14 @@ const gameBoard = (() => {
     let _board = new Array(9);
     const setCell = (index, player) => {
         if (_isEmpty(index)) {
-            const cell = document.querySelector(`.gameboard div:nth-child(${index + 1}) span`);
-            cell.textContent = player.getSign();
+            const cell = document.querySelector(`[data-index="${index}"]`);
+            const cellField = cell.querySelector('.marker');
+            cellField.textContent = player.getSign();
             _board[index] = player.getSign();
             return true;
         }
         else {
+            console.log("Cell was not empty");
             return false;
         }
     };
@@ -108,21 +110,22 @@ const displayController = (() => {
         restart();
         gameplayController.setPlayers();
     };
-    const makeMove = (e) => {
+    const _makeMove = (e) => {
         let cell = e.target;
-        let index = Number(cell.dataset.index);
-        gameplayController.playerMove(index);
+        console.log("cell index: " + cell.dataset.index);
+        let cellIndex = Number(cell.dataset.index);
+        gameplayController.playerMove(cellIndex);
     };
     const activate = () => {
         for (let i = 0; i < cells.length; i++) {
             let cell = cells[i];
-            cell.addEventListener('click', makeMove);
+            cell.addEventListener('click', _makeMove);
         }
     };
     const deactivate = () => {
         for (let i = 0; i < cells.length; i++) {
             let cell = cells[i];
-            cell.removeEventListener('click', makeMove);
+            cell.removeEventListener('click', _makeMove);
         }
     };
     // Adds event listeners before parent module is initialized
@@ -207,9 +210,13 @@ const gameplayController = (() => {
         if (currPlayer.botStatus()) {
             displayController.deactivate();
             let index = _aiChosenMove();
-            setTimeout(() => {
+            (() => __awaiter(void 0, void 0, void 0, function* () {
+                yield _sleep(1000);
                 playerMove(index);
-            }, 1000);
+            }))();
+            // setTimeout(() => {
+            //     playerMove(index);
+            // }, 1000);
         }
         else {
             displayController.activate();

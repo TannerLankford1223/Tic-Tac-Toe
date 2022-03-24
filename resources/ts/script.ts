@@ -22,11 +22,13 @@ const gameBoard = (() => {
 
     const setCell = (index: number, player: any) => {
         if (_isEmpty(index)) {
-            const cell = document.querySelector(`.gameboard div:nth-child(${index + 1}) span`);
-            cell!.textContent = player.getSign();
+            const cell = document.querySelector(`[data-index="${index}"]`);
+            const cellField = cell!.querySelector('.marker');
+            cellField!.textContent = player.getSign();
             _board[index] = player.getSign();
             return true;
         } else {
+            console.log("Cell was not empty");
             return false;
         }
     }
@@ -116,24 +118,25 @@ const displayController = (() => {
         gameplayController.setPlayers();
     }
 
-    const makeMove = (e: Event) => {
+    const _makeMove = (e: Event) => {
         let cell: HTMLElement = e.target as HTMLElement;
-        let index = Number(cell.dataset.index);
+        console.log("cell index: " + cell.dataset.index);
+        let cellIndex: number = Number(cell.dataset.index);
 
-        gameplayController.playerMove(index);
+        gameplayController.playerMove(cellIndex);
     }
 
     const activate = () => {
         for (let i = 0; i < cells.length; i++) {
             let cell: HTMLElement = cells[i];
-            cell.addEventListener('click', makeMove);
+            cell.addEventListener('click', _makeMove);
         }
     }
 
     const deactivate = () => {
         for (let i = 0; i < cells.length; i++) {
             let cell: HTMLElement = cells[i];
-            cell.removeEventListener('click', makeMove);
+            cell.removeEventListener('click', _makeMove);
         }
     }
 
@@ -350,7 +353,6 @@ const gameplayController = (() => {
 
     const changeCurrPlayer = () => {
         currPlayer = (turns % 2 == 0) ? player1 : player2;
-        console.log("currPlayer is " + currPlayer.getSign());
     }
 
     const _init = (() => {
