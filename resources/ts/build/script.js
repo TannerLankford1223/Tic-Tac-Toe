@@ -24,7 +24,7 @@ const Player = (sign) => {
 const gameBoard = (() => {
     let _board = new Array(9);
     const setCell = (index, player) => {
-        if (_isEmpty(index)) {
+        if (!isNaN(index)) {
             const cell = document.querySelector(`[data-index="${index}"]`);
             const cellField = cell.querySelector('.marker');
             cellField.textContent = player.getSign();
@@ -33,6 +33,9 @@ const gameBoard = (() => {
         }
         else {
             console.log("Cell was not empty");
+            gameplayController.incrementTurns();
+            gameplayController.changeCurrPlayer();
+            gameplayController.playGame();
             return false;
         }
     };
@@ -41,9 +44,6 @@ const gameBoard = (() => {
     };
     const getBoard = () => {
         return _board;
-    };
-    const _isEmpty = (index) => {
-        return _board[index] === undefined;
     };
     const clearBoard = () => {
         for (let i = 0; i < _board.length; i++) {
@@ -193,7 +193,7 @@ const gameplayController = (() => {
             }))();
         }
         else {
-            turns++;
+            incrementTurns();
             changeCurrPlayer();
             playGame();
         }
@@ -233,10 +233,12 @@ const gameplayController = (() => {
             if (board[i] === undefined) {
                 board[i] = currPlayer.getSign();
                 let moveVal = minimax(0, false);
-                board[i] === undefined;
+                board[i] = undefined;
                 if (moveVal > bestVal) {
                     bestMoveIndex = i;
                     bestVal = moveVal;
+                    console.log("Best Val: " + bestVal);
+                    console.log("Best move: " + bestMoveIndex);
                 }
             }
         }
@@ -249,8 +251,8 @@ const gameplayController = (() => {
         let otherPlayer = (currPlayer === player1) ? player2 : player1;
         // check rows for X or O victory
         for (let row = 0; row < 3; row++) {
-            if (board.getCell(0 + (3 * row)) === board.getCell(0 + (3 * row)) &&
-                board.getCell(0 + (3 * row)) === board.getCell(0 + (3 * row))) {
+            if (board.getCell(0 + (3 * row)) === board.getCell(1 + (3 * row)) &&
+                board.getCell(1 + (3 * row)) === board.getCell(3 + (3 * row))) {
                 if (board.getCell(0 + (3 * row)) === currPlayer.getSign()) {
                     return +10;
                 }
@@ -433,6 +435,9 @@ const gameplayController = (() => {
     const changeCurrPlayer = () => {
         currPlayer = (turns % 2 == 0) ? player1 : player2;
     };
+    const incrementTurns = () => {
+        turns += 1;
+    };
     const _init = (() => {
         setPlayers();
         playGame();
@@ -445,6 +450,7 @@ const gameplayController = (() => {
         resetTurns,
         setPlayers,
         changeCurrPlayer,
+        incrementTurns,
         _endGame
     };
 })();
