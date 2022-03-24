@@ -202,9 +202,10 @@ const gameplayController = (() => {
         if (currPlayer.botStatus()) {
             displayController.deactivate();
             let index = _aiChosenMove();
-            setTimeout(() => {
+            (() => __awaiter(void 0, void 0, void 0, function* () {
+                yield _sleep(1000);
                 playerMove(index);
-            }, 1000);
+            }))();
         }
         else {
             displayController.activate();
