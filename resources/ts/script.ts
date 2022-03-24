@@ -183,10 +183,6 @@ const gameplayController = (() => {
         if (player1ButtonText!.innerText === 'computer X' && !player1.botStatus()) {
             console.log("Turning on player1 bot status");
             player1.toggleAI();
-            // player2ButtonText!.innerText = 'player O';
-            // if (player2.botStatus()) {
-            //     player2.toggleAI();
-            // }
         } else if (player1ButtonText!.innerText === 'player X' && player1.botStatus()) {
             console.log("Turning off player1 bot status");
             player1.toggleAI();
@@ -195,10 +191,6 @@ const gameplayController = (() => {
         if (player2ButtonText!.innerText === 'computer O' && !player2.botStatus()) {
             console.log("Turning on player2 bot status");
             player2.toggleAI();
-            // player1ButtonText!.innerText = 'player X';
-            // if (player1.botStatus()) {
-            //     player1.toggleAI();
-            // }
         } else if (player2ButtonText!.innerText === 'player O' && player2.botStatus()) {
             console.log("Turning off player2 bot status");
             player2.toggleAI();

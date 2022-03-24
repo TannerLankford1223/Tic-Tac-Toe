@@ -163,10 +163,6 @@ const gameplayController = (() => {
         if (player1ButtonText.innerText === 'computer X' && !player1.botStatus()) {
             console.log("Turning on player1 bot status");
             player1.toggleAI();
-            // player2ButtonText!.innerText = 'player O';
-            // if (player2.botStatus()) {
-            //     player2.toggleAI();
-            // }
         }
         else if (player1ButtonText.innerText === 'player X' && player1.botStatus()) {
             console.log("Turning off player1 bot status");
@@ -175,10 +171,6 @@ const gameplayController = (() => {
         if (player2ButtonText.innerText === 'computer O' && !player2.botStatus()) {
             console.log("Turning on player2 bot status");
             player2.toggleAI();
-            // player1ButtonText!.innerText = 'player X';
-            // if (player1.botStatus()) {
-            //     player1.toggleAI();
-            // }
         }
         else if (player2ButtonText.innerText === 'player O' && player2.botStatus()) {
             console.log("Turning off player2 bot status");
@@ -210,13 +202,9 @@ const gameplayController = (() => {
         if (currPlayer.botStatus()) {
             displayController.deactivate();
             let index = _aiChosenMove();
-            (() => __awaiter(void 0, void 0, void 0, function* () {
-                yield _sleep(1000);
+            setTimeout(() => {
                 playerMove(index);
-            }))();
-            // setTimeout(() => {
-            //     playerMove(index);
-            // }, 1000);
+            }, 1000);
         }
         else {
             displayController.activate();
@@ -316,7 +304,6 @@ const gameplayController = (() => {
     };
     const changeCurrPlayer = () => {
         currPlayer = (turns % 2 == 0) ? player1 : player2;
-        console.log("currPlayer is " + currPlayer.getSign());
     };
     const _init = (() => {
         setPlayers();
