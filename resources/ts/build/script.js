@@ -112,7 +112,6 @@ const displayController = (() => {
     };
     const _makeMove = (e) => {
         let cell = e.target;
-        console.log("cell index: " + cell.dataset.index);
         let cellIndex = Number(cell.dataset.index);
         gameplayController.playerMove(cellIndex);
     };
@@ -156,6 +155,16 @@ const gameplayController = (() => {
     let player2 = Player('O');
     let turns = 0;
     let currPlayer = player1;
+    const winConditions = [
+        [0, 1, 2],
+        [3, 4, 5],
+        [6, 7, 8],
+        [0, 3, 6],
+        [1, 4, 7],
+        [2, 5, 8],
+        [0, 4, 8],
+        [2, 4, 6]
+    ];
     const _sleep = (ms) => {
         return new Promise(resolve => setTimeout(resolve, ms));
     };
@@ -341,65 +350,16 @@ const gameplayController = (() => {
         turns = 0;
         changeCurrPlayer();
     };
-    // Checks if a player has filled a diagonal and returns a boolean.
-    const _checkDiagonals = () => {
-        const diagonal1 = [gameBoard.getCell(0),
-            gameBoard.getCell(4),
-            gameBoard.getCell(8)];
-        const diagonal2 = [gameBoard.getCell(2),
-            gameBoard.getCell(4),
-            gameBoard.getCell(6)];
-        if (diagonal1.every(cell => cell === 'X') ||
-            diagonal1.every(cell => cell === 'O')) {
-            console.log("Diagonal filled");
-            return true;
-        }
-        else if (diagonal2.every(cell => cell === 'X') ||
-            diagonal2.every(cell => cell === 'O')) {
-            console.log('Diagonal filled');
-            return true;
-        }
-        else {
-            return false;
-        }
-    };
-    // Checks if player has filled a column and returns a boolean
-    const _checkColumns = () => {
-        for (let i = 0; i < 3; i++) {
-            let column = [];
-            for (let j = 0; j < 3; j++) {
-                column.push(gameBoard.getCell(i + 3 * j));
-            }
-            if (column.every(cell => cell === 'X') ||
-                column.every(cell => cell === 'O')) {
-                console.log('Column Filled');
-                return true;
-            }
-        }
-        return false;
-    };
-    // Checks if player has filled a row and returns a boolean
-    const _checkRows = () => {
-        for (let i = 0; i < 3; i++) {
-            let row = [];
-            for (let j = i * 3; j < i * 3 + 3; j++) {
-                row.push(gameBoard.getCell(j));
-            }
-            if (row.every(cell => cell === 'X') ||
-                row.every(cell => cell === 'O')) {
-                console.log("Row filled");
-                return true;
-            }
-        }
-        return false;
-    };
     const checkForWin = () => {
-        if (_checkRows() || _checkColumns() || _checkDiagonals()) {
-            return true;
+        for (let winCondition of winConditions) {
+            if (winCondition.every(i => gameBoard.getCell(i) === player1.getSign())) {
+                return true;
+            }
+            else if (winCondition.every(i => gameBoard.getCell(i) === player2.getSign())) {
+                return true;
+            }
         }
-        else {
-            return false;
-        }
+        return false;
     };
     const checkForTie = () => {
         if (checkForWin()) {

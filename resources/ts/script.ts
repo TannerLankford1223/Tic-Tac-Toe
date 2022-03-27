@@ -118,7 +118,6 @@ const displayController = (() => {
 
     const _makeMove = (e: Event) => {
         let cell: HTMLElement = e.target as HTMLElement;
-        console.log("cell index: " + cell.dataset.index);
         let cellIndex: number = Number(cell.dataset.index);
 
         gameplayController.playerMove(cellIndex);
@@ -165,7 +164,7 @@ const displayController = (() => {
 })();
 
 const aiLogic = () => {
-    
+
 }
 
 const gameplayController = (() => {
@@ -173,6 +172,17 @@ const gameplayController = (() => {
     let player2: any = Player('O');
     let turns: number = 0;
     let currPlayer: any = player1;
+
+    const winConditions: number[][] = [
+        [0, 1, 2],
+        [3, 4, 5],
+        [6, 7, 8],
+        [0, 3, 6],
+        [1, 4, 7],
+        [2, 5, 8],
+        [0, 4, 8],
+        [2, 4, 6]
+    ]
 
     const _sleep = (ms: number) => {
         return new Promise(resolve => setTimeout(resolve, ms));
@@ -326,7 +336,7 @@ const gameplayController = (() => {
     const _minimax = (depth: number, isMax: boolean) => {
 
         let score: number = _evaluate();
-        
+
         if (score == 10 || score == -10) {
             return score;
         }
@@ -367,7 +377,7 @@ const gameplayController = (() => {
                 gameBoard.getBoard()[i] = otherPlayer.getSign();
 
                 bestScore = Math.min(bestScore, _minimax(depth + 1, true));
-                
+
                 gameBoard.getBoard()[i] = undefined;
             }
         }
@@ -376,127 +386,73 @@ const gameplayController = (() => {
     }
 
 
-// Minimax Algorithm helper function that returns if any moves are left
-// on the board
-const _anyMovesLeft = () => {
-    for (let i = 0; i < 9; i++) {
-        if (gameBoard.getCell(i) === undefined) {
-            return true;
+    // Minimax Algorithm helper function that returns if any moves are left
+    // on the board
+    const _anyMovesLeft = () => {
+        for (let i = 0; i < 9; i++) {
+            if (gameBoard.getCell(i) === undefined) {
+                return true;
+            }
         }
-    }
-    return false;
-}
-
-
-
-const resetTurns = () => {
-    turns = 0;
-    changeCurrPlayer();
-}
-
-// Checks if a player has filled a diagonal and returns a boolean.
-const _checkDiagonals = () => {
-    const diagonal1: (string | undefined)[] = [gameBoard.getCell(0),
-    gameBoard.getCell(4),
-    gameBoard.getCell(8)];
-
-    const diagonal2: (string | undefined)[] = [gameBoard.getCell(2),
-    gameBoard.getCell(4),
-    gameBoard.getCell(6)];
-
-    if (diagonal1.every(cell => cell === 'X') ||
-        diagonal1.every(cell => cell === 'O')) {
-        console.log("Diagonal filled");
-        return true;
-    } else if (diagonal2.every(cell => cell === 'X') ||
-        diagonal2.every(cell => cell === 'O')) {
-        console.log('Diagonal filled');
-        return true;
-    } else {
-        return false;
-    }
-}
-
-// Checks if player has filled a column and returns a boolean
-const _checkColumns = () => {
-    for (let i = 0; i < 3; i++) {
-        let column: (string | undefined)[] = [];
-        for (let j = 0; j < 3; j++) {
-            column.push(gameBoard.getCell(i + 3 * j));
-        }
-
-        if (column.every(cell => cell === 'X') ||
-            column.every(cell => cell === 'O')) {
-            console.log('Column Filled');
-            return true;
-        }
-    }
-
-    return false;
-}
-
-// Checks if player has filled a row and returns a boolean
-const _checkRows = () => {
-    for (let i = 0; i < 3; i++) {
-        let row: (string | undefined)[] = [];
-        for (let j = i * 3; j < i * 3 + 3; j++) {
-            row.push(gameBoard.getCell(j));
-        }
-
-        if (row.every(cell => cell === 'X') ||
-            row.every(cell => cell === 'O')) {
-            console.log("Row filled");
-            return true;
-        }
-    }
-
-    return false;
-}
-
-const checkForWin = () => {
-    if (_checkRows() || _checkColumns() || _checkDiagonals()) {
-        return true;
-    } else {
-        return false;
-    }
-}
-
-const checkForTie = () => {
-    if (checkForWin()) {
         return false;
     }
 
-    for (let i = 0; i < 9; i++) {
-        if (gameBoard.getCell(i) == undefined) {
+
+
+    const resetTurns = () => {
+        turns = 0;
+        changeCurrPlayer();
+    }
+
+    const checkForWin = () => {
+        
+        for (let winCondition of winConditions) {
+            if (winCondition.every(i => gameBoard.getCell(i) === player1.getSign())) {
+                return true;
+            } else if (winCondition.every(i => gameBoard.getCell(i) === player2.getSign())) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    const checkForTie = () => {
+        if (checkForWin()) {
             return false;
         }
+
+        for (let i = 0; i < 9; i++) {
+            if (gameBoard.getCell(i) == undefined) {
+                return false;
+            }
+        }
+
+        return true;
     }
 
-    return true;
-}
+    const changeCurrPlayer = () => {
+        currPlayer = (turns % 2 == 0) ? player1 : player2;
+    }
 
-const changeCurrPlayer = () => {
-    currPlayer = (turns % 2 == 0) ? player1 : player2;
-}
+    const incrementTurns = () => {
+        turns += 1;
+    }
 
-const incrementTurns = () => {
-    turns += 1;
-}
+    const _init = (() => {
+        setPlayers();
+        playGame();
+    })();
 
-const _init = (() => {
-    setPlayers();
-    playGame();
+    return {
+        checkForWin,
+        checkForTie,
+        playerMove,
+        playGame,
+        resetTurns,
+        setPlayers,
+        changeCurrPlayer,
+        incrementTurns,
+        _endGame
+    }
 })();
-
-return {
-    checkForWin,
-    checkForTie,
-    playerMove,
-    playGame,
-    resetTurns,
-    setPlayers,
-    changeCurrPlayer,
-    incrementTurns,
-    _endGame
-}
-}) ();
