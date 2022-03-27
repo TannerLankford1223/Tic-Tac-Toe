@@ -37,6 +37,10 @@ const gameBoard = (() => {
         return _board[index];
     }
 
+    const clearCell = (index: number) => {
+        _board[index] = null;
+    }
+
     const getBoard = () => {
         return _board;
     }
@@ -51,6 +55,7 @@ const gameBoard = (() => {
         setCell,
         getCell,
         getBoard,
+        clearCell,
         clearBoard
     }
 })();
@@ -260,7 +265,7 @@ const gameplayController = (() => {
 
     // Finds the best move using the minimax algorithm
     const _aiChosenMove = () => {
-        let { moves } = _minimax();
+        let { moves } = _minimax(false);
 
         console.log("moves: " + moves);
 
@@ -269,7 +274,13 @@ const gameplayController = (() => {
 
     // Use a minimax algorithm to consider all possible moves on the board
     // and return the value of the board
-    const _minimax = () => {
+    const _minimax = (isMax: boolean) => {
+        let player: any;
+        if (isMax) {
+            player = (currPlayer === player1) ? player1 : player2;
+        } else {
+            player = (currPlayer === player1) ? player2 : player1;
+        }
 
         if (checkForWin()) {
             return { value: -10 };
@@ -285,9 +296,9 @@ const gameplayController = (() => {
         };
 
         for (let move of validMoves) {
-            gameBoard.getBoard()[move] = currPlayer.getSign();
-            let { value } = _minimax();
-            gameBoard.getBoard()[move] = null;
+            gameBoard.setCell(move, player);
+            let { value } = _minimax(!isMax);
+            gameBoard.clearCell(move);
             // Reduce the magnitude of the value to prioritize shorter routes
             // to winning
             value = value ? (Math.abs(value) - 1) * Math.sign(-value) : 0;
