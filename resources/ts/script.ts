@@ -184,6 +184,7 @@ const gameplayController = (() => {
     let player2: any = Player('O');
     let turns: number = 0;
     let currPlayer: any = player1;
+    let aiPrecision: number = 100;
 
     const winConditions: number[][] = [
         [0, 1, 2],
@@ -222,6 +223,10 @@ const gameplayController = (() => {
 
         playGame();
     }
+
+    const setAIPrecision = (level: number) => {
+        aiPrecision = level;
+    };
 
     const playerMove = (index: number) => {
 
@@ -265,11 +270,18 @@ const gameplayController = (() => {
 
     // Finds the best move using the minimax algorithm
     const _aiChosenMove = () => {
-        let { moves } = _minimax(false);
+        const randomNum: number = Math.floor(Math.random() * 101);
+        let choice = null;
 
-        console.log("moves: " + moves);
+        if (randomNum <= aiPrecision) {
+            let { moves } = _minimax(true);
+            choice = moves![Math.floor(Math.random() * moves!.length)];
+        } else {
+            let moves: number[] = _possibleMoves();
+            choice = moves[Math.floor(Math.random() * moves.length)];
+        }
 
-        return moves![Math.floor(Math.random() * moves!.length)];
+         return choice;
     }
 
     // Use a minimax algorithm to consider all possible moves on the board
@@ -380,6 +392,7 @@ const gameplayController = (() => {
         playGame,
         resetTurns,
         setPlayers,
+        setAIPrecision,
         changeCurrPlayer,
         incrementTurns,
         _endGame
