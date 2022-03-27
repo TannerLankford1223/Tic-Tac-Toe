@@ -11,15 +11,33 @@
 
 <body>
 
+    <div class="player-btns">
+        <button type="button" id="player-1">player X</button>
+        VS
+        <button type="button" id="player-2">player O</button>
 
-    <div class="wrapper">
+        <div class="dropdown-btns">
+            <form action class="dropdown-btn">
+                <select name="player-difficulty" id="player1-diff" data-player="X" disabled>
+                    <option value="easy">Easy</option>
+                    <option value="medium">Medium</option>
+                    <option value="hard">Hard</option>
+                    <option value="unbeatable">unbeatable</option>
+                </select>
+            </form>
         
-        <div class="player-btns">
-            <button type="button" class="btn" id="player-1">player X</button>
-            VS
-            <button type="button" class="btn" id="player-2">player O</button>
+            <form action class="dropdown-btn">
+                <select name="player-difficulty" id="player2-diff" data-player="O" disabled>
+                    <option value="easy">Easy</option>
+                    <option value="medium">Medium</option>
+                    <option value="hard">Hard</option>
+                    <option value="unbeatable">Unbeatable</option>
+                </select>
+            </form>
         </div>
-
+    </div>
+    
+  <div class="wrapper">
         <div class="gameboard">
             <div class="board-cell" data-index="0"><span class="marker"></span></div>
             <div class="board-cell" data-index="1"><span class="marker"></span></div>
@@ -34,7 +52,7 @@
 
     </div>
     <div class="restart-btn">
-        <button type="button" class="btn" id="restart">Restart</button>
+        <button type="button" id="restart">Restart</button>
     </div>
 
     <div id="overlay">
@@ -42,7 +60,7 @@
         <div class="overlay-text" id="winner"></div>
     </div>
 
-     <script src="./resources/ts/build/script.js"></script>
+    <script src="./resources/ts/build/script.js"></script>
 </body>
 
 </html>

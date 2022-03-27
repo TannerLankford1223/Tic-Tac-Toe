@@ -11,13 +11,23 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 const Player = (sign) => {
     const _sign = sign;
     let _isBot = false;
+    let _aiPrecision = 0;
     const getSign = () => _sign;
     // Changes player to a computer player
     const toggleAI = () => _isBot = !_isBot;
     const botStatus = () => _isBot;
+    const setAIPrecision = (level) => {
+        console.log("setting precision to : " + level);
+        _aiPrecision = (_isBot) ? level : 0;
+    };
+    const getAIPrecision = () => {
+        return _aiPrecision;
+    };
     return {
         getSign,
         toggleAI,
+        setAIPrecision,
+        getAIPrecision,
         botStatus
     };
 };
@@ -60,13 +70,14 @@ const gameBoard = (() => {
 })();
 const displayController = (() => {
     const cells = document.querySelectorAll('.board-cell');
-    const restartButton = document.querySelector('#restart');
     const cellFields = document.querySelectorAll('.marker');
+    const restartButton = document.querySelector('#restart');
     const overlay = document.querySelector('#overlay');
     const overlayText = document.querySelector('.overlay-text');
     const winnerText = document.querySelector('#winner');
     const player1Button = document.querySelector('#player-1');
     const player2Button = document.querySelector('#player-2');
+    const playerDifficultyBtn = document.getElementsByName('player-difficulty');
     // End screen is displayed once the game is won or there is a tie
     const endScreen = (sign) => {
         let text;
@@ -98,15 +109,19 @@ const displayController = (() => {
         let button = e.target;
         if (button.innerText == 'player X') {
             button.innerText = 'computer X';
+            document.getElementById('player1-diff').removeAttribute('disabled');
         }
         else if (button.innerText == 'player O') {
+            document.getElementById('player2-diff').removeAttribute('disabled');
             button.innerText = 'computer O';
         }
         else if (button.innerText === 'computer X') {
             button.innerText = 'player X';
+            document.getElementById('player1-diff').setAttribute('disabled', 'true');
         }
         else {
             button.innerText = 'player O';
+            document.getElementById('player2-diff').setAttribute('disabled', 'true');
         }
         restart();
         gameplayController.setPlayers();
@@ -150,6 +165,22 @@ const displayController = (() => {
         });
         player1Button.addEventListener('click', togglePlayer);
         player2Button.addEventListener('click', togglePlayer);
+        // player1DifficultyBtn!.addEventListener('change', () => {
+        //     const difficulty: string =
+        //         (<HTMLInputElement>document.getElementById('player1-diff'))!.value;
+        //     gameplayController.setAIPrecision(difficulty, 'X');
+        // });
+        // player2DifficultyBtn!.addEventListener('change', () => {
+        //     const difficulty: string =
+        //         (<HTMLInputElement>document.getElementById('player2-diff'))!.value;
+        //     gameplayController.setAIPrecision(difficulty, 'O');
+        // });
+        playerDifficultyBtn.forEach(btn => btn.addEventListener('change', (e) => {
+            const diffButton = btn;
+            const difficulty = diffButton.value;
+            const playerMark = diffButton.dataset.player;
+            gameplayController.setAIPrecision(difficulty, playerMark);
+        }));
     })();
     return {
         endScreen,
@@ -158,14 +189,11 @@ const displayController = (() => {
         deactivate
     };
 })();
-const aiLogic = () => {
-};
 const gameplayController = (() => {
     let player1 = Player('X');
     let player2 = Player('O');
     let turns = 0;
     let currPlayer = player1;
-    let aiPrecision = 100;
     const winConditions = [
         [0, 1, 2],
         [3, 4, 5],
@@ -200,8 +228,22 @@ const gameplayController = (() => {
         }
         playGame();
     };
-    const setAIPrecision = (level) => {
-        aiPrecision = level;
+    const setAIPrecision = (level, playerMark) => {
+        const player = (playerMark === 'X') ? player1 : player2;
+        let aiPrecision;
+        if (level === 'medium') {
+            aiPrecision = 50;
+        }
+        else if (level === 'hard') {
+            aiPrecision = 75;
+        }
+        else if (level === 'unbeatable') {
+            aiPrecision = 100;
+        }
+        else {
+            aiPrecision = 25;
+        }
+        player.setAIPrecision(aiPrecision);
     };
     const playerMove = (index) => {
         gameBoard.setCell(index, currPlayer);
@@ -209,13 +251,13 @@ const gameplayController = (() => {
         if (checkForWin()) {
             (() => __awaiter(void 0, void 0, void 0, function* () {
                 yield _sleep(500 + (Math.random() * 500));
-                _endGame(currPlayer.getSign());
+                endGame(currPlayer.getSign());
             }))();
         }
         else if (checkForTie()) {
             (() => __awaiter(void 0, void 0, void 0, function* () {
                 yield _sleep(500 + (Math.random() * 500));
-                _endGame("Draw");
+                endGame("Draw");
             }))();
         }
         else {
@@ -226,8 +268,9 @@ const gameplayController = (() => {
     };
     const playGame = () => {
         if (currPlayer.botStatus()) {
+            console.log("precision: " + currPlayer.getAIPrecision());
             displayController.deactivate();
-            let index = _aiChosenMove();
+            let index = _aiChosenMove(currPlayer.getAIPrecision());
             (() => __awaiter(void 0, void 0, void 0, function* () {
                 yield _sleep(1000);
                 playerMove(index);
@@ -237,12 +280,12 @@ const gameplayController = (() => {
             displayController.activate();
         }
     };
-    const _endGame = (sign) => {
+    const endGame = (sign) => {
         displayController.endScreen(sign);
         resetTurns();
     };
     // Finds the best move using the minimax algorithm
-    const _aiChosenMove = () => {
+    const _aiChosenMove = (aiPrecision) => {
         const randomNum = Math.floor(Math.random() * 101);
         let choice = null;
         if (randomNum <= aiPrecision) {
@@ -348,6 +391,6 @@ const gameplayController = (() => {
         setAIPrecision,
         changeCurrPlayer,
         incrementTurns,
-        _endGame
+        endGame
     };
 })();

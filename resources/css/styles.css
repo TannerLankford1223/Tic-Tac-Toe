@@ -2,9 +2,21 @@ body {
     font-family: Verdana, Geneva, Tahoma, sans-serif;
 }
 
+button {
+    border-radius: 20px;
+    opacity: 80%;
+    border-style: none;
+    width: 200px;
+    height: 45px;
+    font-weight: bold;
+    font-size: 20px;
+    background-color: lightgray;
+    z-index: 1;
+}
+
 .wrapper {
     width: 500px;
-    height: 400px;
+    height: 500px;
     margin: 100px auto 0px auto;
     display: flex;
     text-align: center;
@@ -23,27 +35,16 @@ body {
     font-weight: bold;
 }
 
-.btn {
-    border-radius: 20px;
-    opacity: 80%;
-    border-style: none;
-    width: 200px;
-    height: 45px;
-    font-weight: bold;
-    font-size: 20px;
-    background-color: lightgray;
-}
-
-.btn:hover {
+button:hover {
     opacity: 90%;
 }
 
-.btn:active {
+button:active {
     opacity: 100%;
 }
 
 #player-1 {
-    background-color: cornflowerblue;
+    background-color: cornflowerblue
 }
 
 #player-2 {
@@ -54,8 +55,25 @@ body {
     margin: auto 45% auto;
 }
 
+.dropdown-btns {
+    margin: 15px 0;
+    height: 50px;
+    width: 100%;
+}
+
+#player1-diff {
+    float: left;
+    margin-left: 50px;
+
+}
+
+#player2-diff {
+    float: right;
+    margin-right: 50px;
+}
+
 .gameboard {
-    margin: auto;
+    margin: 85px auto;
     display: grid;
     justify-content: center;
     width: 100%;
@@ -63,8 +81,6 @@ body {
     grid-template-rows: repeat(3, minmax(75px, 100px));
     grid-template-columns: repeat(3, minmax(75px, 100px));
     gap: 12px;
-    background-color: white;
-
 }
 
 .board-cell {
