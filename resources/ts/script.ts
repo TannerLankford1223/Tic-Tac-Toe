@@ -164,6 +164,10 @@ const displayController = (() => {
     }
 })();
 
+const aiLogic = () => {
+    
+}
+
 const gameplayController = (() => {
     let player1: any = Player('X');
     let player2: any = Player('O');
@@ -236,56 +240,48 @@ const gameplayController = (() => {
         resetTurns();
     }
 
-    const _getAIMoves = () => {
-        let moves: number[] = [];
-
-        for (let i = 0; i < 9; i++) {
-            if (gameBoard.getCell(i) === undefined) {
-                moves.push(i);
-            }
-        }
-
-        return moves;
-    }
-
     // Finds the best move using the minimax algorithm
     const _aiChosenMove = () => {
-        let bestVal: number = -1000;
-        let bestMoveIndex: number = -1;
-        let board = gameBoard.getBoard();
+        // const moves: number[] = _getAIMoves();
+        // let bestMoveIndex = moves[Math.floor(Math.random() * moves.length)];
+
+        // return bestMoveIndex;
+
+        let bestScore: number = -10000;
+        let bestMove: number = -1;
 
         for (let i = 0; i < 9; i++) {
-            if (board[i] === undefined) {
-                board[i] = currPlayer.getSign();
+            if (gameBoard.getBoard()[i] === undefined) {
+                gameBoard.getBoard()[i] = currPlayer.getSign();
 
-                let moveVal = minimax(0, false);
+                const moveVal = _minimax(0, false);
 
-                board[i] = undefined;
+                gameBoard.getBoard()[i] = undefined;
 
-                if (moveVal > bestVal) {
-                    bestMoveIndex = i;
-                    bestVal = moveVal;
-                    console.log("Best Val: " + bestVal);
-                    console.log("Best move: " + bestMoveIndex);
+                if (moveVal > bestScore) {
+                    bestScore = moveVal;
+                    bestMove = i;
                 }
             }
         }
 
-        return bestMoveIndex;
+        console.log("The value of the best move is: " + bestScore);
+
+        return bestMove;
     }
 
-    // Evaluates positions on the board and assigns values to them based
-    // on maximizing the chance of winning for a given player
-    const evaluate = () => {
+    // Evaluates positions on the board and returns true if the current player
+    // is the winner
+    const _evaluate = () => {
         let board: any = gameBoard;
-        let otherPlayer = (currPlayer === player1) ? player2 : player1;
+        let otherPlayer: any = (currPlayer === player1) ? player2 : player1;
 
         // check rows for X or O victory
         for (let row = 0; row < 3; row++) {
             if (board.getCell(0 + (3 * row)) === board.getCell(1 + (3 * row)) &&
                 board.getCell(1 + (3 * row)) === board.getCell(3 + (3 * row))) {
                 if (board.getCell(0 + (3 * row)) === currPlayer.getSign()) {
-                    return +10;
+                    return 10;
                 } else if (board.getCell(0 + (3 * row)) === otherPlayer.getSign()) {
                     return -10;
                 }
@@ -297,7 +293,7 @@ const gameplayController = (() => {
             if (board.getCell(col) === board.getCell(col + 3) &&
                 board.getCell(col + 3) === board.getCell(col + 6)) {
                 if (board.getCell(col) === currPlayer.getSign()) {
-                    return +10;
+                    return 10;
                 } else if (board.getCell(col) === otherPlayer.getSign()) {
                     return -10;
                 }
@@ -307,7 +303,7 @@ const gameplayController = (() => {
         // Check diagonals for X or O victory
         if (board.getCell(0) === board.getCell(4) === board.getCell(8)) {
             if (board.getCell(0) === currPlayer.getSign()) {
-                return +10;
+                return 10;
             } else if (board.getCell(0) === otherPlayer.getSign()) {
                 return -10;
             }
@@ -315,7 +311,7 @@ const gameplayController = (() => {
 
         if (board.getCell(2) === board.getCell(4) === board.getCell(6)) {
             if (board.getCell(2) === currPlayer.getSign()) {
-                return +10;
+                return 10;
             } else if (board.getCell(2) === otherPlayer.getSign()) {
                 return -10;
             }
@@ -327,78 +323,67 @@ const gameplayController = (() => {
 
     // Use a minimax algorithm to consider all possible moves on the board
     // and return the value of the board
-    const minimax = (depth: number, isMax: boolean) => {
-        let score = evaluate();
+    const _minimax = (depth: number, isMax: boolean) => {
 
-        // If Maximizer has won the game, then return their evaluated
-        // score
-        if (score === 10) {
+        let score: number = _evaluate();
+        
+        if (score == 10 || score == -10) {
             return score;
         }
 
-        // If the Minimizer has won the game, then return their evaluated
-        // score
-        if (score === -10) {
-            return score;
-        }
-
-        // If there are no more moves and there is no winner, then it is a tie
-        if (!anyMovesLeft()) {
+        if (!_anyMovesLeft()) {
             return 0;
         }
 
-        // If this is the Maximizers turn
         if (isMax) {
-            return maximize(depth, isMax);
-        }
-        // If this is the Minimizers turn
-        else { 
-        return minimize(depth, isMax);
+            return _maximize(depth);
+        } else {
+            return _minimize(depth);
         }
     }
 
-    // Returns the best move for the Maximizer
-    const maximize = (depth: number, isMax: boolean) => {
-    let best = -1000;
-    let board = gameBoard.getBoard();
+    const _maximize = (depth: number) => {
+        let bestScore: number = -10000;
 
-    for (let i = 0; i < 9; i++) {
-        if (board[i] === undefined) {
-            board[i] = currPlayer.getSign();
-            best = Math.max(best, Number(minimax(depth + 1, !isMax)));
-            board[i] = undefined;
+        for (let i = 0; i < 9; i++) {
+            if (gameBoard.getCell(i) === undefined) {
+                gameBoard.getBoard()[i] = currPlayer;
+
+                bestScore = Math.max(bestScore, _minimax(depth + 1, false));
+
+                gameBoard.getBoard()[i] = undefined;
+            }
         }
+
+        return bestScore;
     }
 
-    return best;
-}
+    const _minimize = (depth: number) => {
+        const otherPlayer = (currPlayer === player1) ? player2 : player1;
+        let bestScore: number = 10000;
 
-// Returns the best move for the Minimizer
-const minimize = (depth: number, isMax: boolean) => {
-    let best = 1000;
-    let board = gameBoard.getBoard();
-    let otherPlayer = (currPlayer === player1) ? player2 : player1;
+        for (let i = 0; i < 9; i++) {
+            if (gameBoard.getCell(i) === undefined) {
+                gameBoard.getBoard()[i] = otherPlayer.getSign();
 
-    for (let i = 0; i < 9; i++) {
-        if (board[i] === undefined) {
-            board[i] = otherPlayer.getSign();
-            best = Math.min(best, Number(minimax(depth + 1, !isMax)));
-            board[i] = undefined;
+                bestScore = Math.min(bestScore, _minimax(depth + 1, true));
+                
+                gameBoard.getBoard()[i] = undefined;
+            }
         }
+
+        return bestScore;
     }
 
-    return best;
-}
 
 // Minimax Algorithm helper function that returns if any moves are left
 // on the board
-const anyMovesLeft = () => {
+const _anyMovesLeft = () => {
     for (let i = 0; i < 9; i++) {
         if (gameBoard.getCell(i) === undefined) {
             return true;
         }
     }
-
     return false;
 }
 
