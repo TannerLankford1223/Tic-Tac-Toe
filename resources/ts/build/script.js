@@ -22,12 +22,9 @@ const Player = (sign) => {
     };
 };
 const gameBoard = (() => {
-    let _board = new Array(9);
+    let _board = new Array(9).fill(null);
     const setCell = (index, player) => {
         if (!isNaN(index)) {
-            const cell = document.querySelector(`[data-index="${index}"]`);
-            const cellField = cell.querySelector('.marker');
-            cellField.textContent = player.getSign();
             _board[index] = player.getSign();
             return true;
         }
@@ -47,7 +44,7 @@ const gameBoard = (() => {
     };
     const clearBoard = () => {
         for (let i = 0; i < _board.length; i++) {
-            _board[i] = undefined;
+            _board[i] = null;
         }
     };
     return {
@@ -127,6 +124,14 @@ const displayController = (() => {
             cell.removeEventListener('click', _makeMove);
         }
     };
+    const updateDisplay = () => {
+        for (let i = 0; i < 9; i++) {
+            if (gameBoard.getCell(i) !== null) {
+                const cell = document.querySelector(`[data-index="${i}"] span`);
+                cell.textContent = gameBoard.getCell(i);
+            }
+        }
+    };
     // Adds event listeners before parent module is initialized
     const _init = (() => {
         activate();
@@ -145,6 +150,7 @@ const displayController = (() => {
     return {
         endScreen,
         activate,
+        updateDisplay,
         deactivate
     };
 })();
@@ -191,6 +197,7 @@ const gameplayController = (() => {
     };
     const playerMove = (index) => {
         gameBoard.setCell(index, currPlayer);
+        displayController.updateDisplay();
         if (checkForWin()) {
             (() => __awaiter(void 0, void 0, void 0, function* () {
                 yield _sleep(500 + (Math.random() * 500));
@@ -248,7 +255,7 @@ const gameplayController = (() => {
         for (let move of validMoves) {
             gameBoard.getBoard()[move] = currPlayer.getSign();
             let { value } = _minimax();
-            gameBoard.getBoard()[move] = undefined;
+            gameBoard.getBoard()[move] = null;
             // Reduce the magnitude of the value to prioritize shorter routes
             // to winning
             value = value ? (Math.abs(value) - 1) * Math.sign(-value) : 0;
@@ -266,7 +273,7 @@ const gameplayController = (() => {
     const _possibleMoves = () => {
         let moves = [];
         for (let i = 0; i < 9; i++) {
-            if (gameBoard.getCell(i) === undefined) {
+            if (gameBoard.getCell(i) === null) {
                 moves.push(i);
             }
         }
@@ -292,7 +299,7 @@ const gameplayController = (() => {
             return false;
         }
         for (let i = 0; i < 9; i++) {
-            if (gameBoard.getCell(i) == undefined) {
+            if (gameBoard.getCell(i) == null) {
                 return false;
             }
         }

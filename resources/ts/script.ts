@@ -18,13 +18,10 @@ const Player = (sign: string) => {
 
 
 const gameBoard = (() => {
-    let _board: (string | undefined)[] = new Array(9);
+    let _board: (string | null)[] = new Array(9).fill(null);
 
     const setCell = (index: number, player: any) => {
         if (!isNaN(index)) {
-            const cell = document.querySelector(`[data-index="${index}"]`);
-            const cellField = cell!.querySelector('.marker');
-            cellField!.textContent = player.getSign();
             _board[index] = player.getSign();
             return true;
         } else {
@@ -46,7 +43,7 @@ const gameBoard = (() => {
 
     const clearBoard = () => {
         for (let i = 0; i < _board.length; i++) {
-            _board[i] = undefined;
+            _board[i] = null;
         }
     }
 
@@ -137,6 +134,15 @@ const displayController = (() => {
         }
     }
 
+    const updateDisplay = () => {
+        for (let i = 0; i < 9; i++) {
+            if (gameBoard.getCell(i) !== null) {
+                const cell: HTMLElement | null = document.querySelector(`[data-index="${i}"] span`);
+                cell!.textContent = gameBoard.getCell(i);
+            }
+        }
+    }
+
     // Adds event listeners before parent module is initialized
     const _init = (() => {
         activate();
@@ -159,6 +165,7 @@ const displayController = (() => {
     return {
         endScreen,
         activate,
+        updateDisplay,
         deactivate
     }
 })();
@@ -214,6 +221,7 @@ const gameplayController = (() => {
     const playerMove = (index: number) => {
 
         gameBoard.setCell(index, currPlayer);
+        displayController.updateDisplay();
         if (checkForWin()) {
             (async () => {
                 await _sleep(500 + (Math.random() * 500));
@@ -278,9 +286,8 @@ const gameplayController = (() => {
 
         for (let move of validMoves) {
             gameBoard.getBoard()[move] = currPlayer.getSign();
-            console.log("gameBoard after placing mark: " + gameBoard.getBoard());
             let { value } = _minimax();
-            gameBoard.getBoard()[move] = undefined;
+            gameBoard.getBoard()[move] = null;
             // Reduce the magnitude of the value to prioritize shorter routes
             // to winning
             value = value ? (Math.abs(value) - 1) * Math.sign(-value) : 0;
@@ -302,7 +309,7 @@ const gameplayController = (() => {
         let moves: number[] = [];
 
         for (let i = 0; i < 9; i++) {
-            if (gameBoard.getCell(i) === undefined) {
+            if (gameBoard.getCell(i) === null) {
                 moves.push(i);
             }
         }
@@ -334,7 +341,7 @@ const gameplayController = (() => {
         }
 
         for (let i = 0; i < 9; i++) {
-            if (gameBoard.getCell(i) == undefined) {
+            if (gameBoard.getCell(i) == null) {
                 return false;
             }
         }
