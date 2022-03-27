@@ -252,149 +252,61 @@ const gameplayController = (() => {
 
     // Finds the best move using the minimax algorithm
     const _aiChosenMove = () => {
-        // const moves: number[] = _getAIMoves();
-        // let bestMoveIndex = moves[Math.floor(Math.random() * moves.length)];
+        let { moves } = _minimax();
 
-        // return bestMoveIndex;
+        console.log("moves: " + moves);
 
-        let bestScore: number = -10000;
-        let bestMove: number = -1;
-
-        for (let i = 0; i < 9; i++) {
-            if (gameBoard.getBoard()[i] === undefined) {
-                gameBoard.getBoard()[i] = currPlayer.getSign();
-
-                const moveVal = _minimax(0, false);
-
-                gameBoard.getBoard()[i] = undefined;
-
-                if (moveVal > bestScore) {
-                    bestScore = moveVal;
-                    bestMove = i;
-                }
-            }
-        }
-
-        console.log("The value of the best move is: " + bestScore);
-
-        return bestMove;
-    }
-
-    // Evaluates positions on the board and returns true if the current player
-    // is the winner
-    const _evaluate = () => {
-        let board: any = gameBoard;
-        let otherPlayer: any = (currPlayer === player1) ? player2 : player1;
-
-        // check rows for X or O victory
-        for (let row = 0; row < 3; row++) {
-            if (board.getCell(0 + (3 * row)) === board.getCell(1 + (3 * row)) &&
-                board.getCell(1 + (3 * row)) === board.getCell(3 + (3 * row))) {
-                if (board.getCell(0 + (3 * row)) === currPlayer.getSign()) {
-                    return 10;
-                } else if (board.getCell(0 + (3 * row)) === otherPlayer.getSign()) {
-                    return -10;
-                }
-            }
-        }
-
-        // Check columns for X or O victory
-        for (let col = 0; col < 3; col++) {
-            if (board.getCell(col) === board.getCell(col + 3) &&
-                board.getCell(col + 3) === board.getCell(col + 6)) {
-                if (board.getCell(col) === currPlayer.getSign()) {
-                    return 10;
-                } else if (board.getCell(col) === otherPlayer.getSign()) {
-                    return -10;
-                }
-            }
-        }
-
-        // Check diagonals for X or O victory
-        if (board.getCell(0) === board.getCell(4) === board.getCell(8)) {
-            if (board.getCell(0) === currPlayer.getSign()) {
-                return 10;
-            } else if (board.getCell(0) === otherPlayer.getSign()) {
-                return -10;
-            }
-        }
-
-        if (board.getCell(2) === board.getCell(4) === board.getCell(6)) {
-            if (board.getCell(2) === currPlayer.getSign()) {
-                return 10;
-            } else if (board.getCell(2) === otherPlayer.getSign()) {
-                return -10;
-            }
-        }
-
-        // If none of the above are winning conditions, then return 0
-        return 0;
+        return moves![Math.floor(Math.random() * moves!.length)];
     }
 
     // Use a minimax algorithm to consider all possible moves on the board
     // and return the value of the board
-    const _minimax = (depth: number, isMax: boolean) => {
+    const _minimax = () => {
 
-        let score: number = _evaluate();
-
-        if (score == 10 || score == -10) {
-            return score;
+        if (checkForWin()) {
+            return { value: -10 };
         }
 
-        if (!_anyMovesLeft()) {
-            return 0;
+        if (checkForTie()) {
+            return { value: 0 };
         }
 
-        if (isMax) {
-            return _maximize(depth);
-        } else {
-            return _minimize(depth);
-        }
-    }
+        let validMoves: number[] = _possibleMoves();
+        let best: { value: number, moves?: number[] } = {
+            value: -Infinity
+        };
 
-    const _maximize = (depth: number) => {
-        let bestScore: number = -10000;
-
-        for (let i = 0; i < 9; i++) {
-            if (gameBoard.getCell(i) === undefined) {
-                gameBoard.getBoard()[i] = currPlayer;
-
-                bestScore = Math.max(bestScore, _minimax(depth + 1, false));
-
-                gameBoard.getBoard()[i] = undefined;
+        for (let move of validMoves) {
+            gameBoard.getBoard()[move] = currPlayer.getSign();
+            console.log("gameBoard after placing mark: " + gameBoard.getBoard());
+            let { value } = _minimax();
+            gameBoard.getBoard()[move] = undefined;
+            // Reduce the magnitude of the value to prioritize shorter routes
+            // to winning
+            value = value ? (Math.abs(value) - 1) * Math.sign(-value) : 0;
+            if (value >= best.value) {
+                if (value > best.value) {
+                    best = { value, moves: [] };
+                }
+                best.moves!.push(move);
             }
         }
 
-        return bestScore;
+        return best;
     }
 
-    const _minimize = (depth: number) => {
-        const otherPlayer = (currPlayer === player1) ? player2 : player1;
-        let bestScore: number = 10000;
-
-        for (let i = 0; i < 9; i++) {
-            if (gameBoard.getCell(i) === undefined) {
-                gameBoard.getBoard()[i] = otherPlayer.getSign();
-
-                bestScore = Math.min(bestScore, _minimax(depth + 1, true));
-
-                gameBoard.getBoard()[i] = undefined;
-            }
-        }
-
-        return bestScore;
-    }
-
-
-    // Minimax Algorithm helper function that returns if any moves are left
+    // Minimax Algorithm helper function that returns any possible moves left
     // on the board
-    const _anyMovesLeft = () => {
+    const _possibleMoves = () => {
+
+        let moves: number[] = [];
+
         for (let i = 0; i < 9; i++) {
             if (gameBoard.getCell(i) === undefined) {
-                return true;
+                moves.push(i);
             }
         }
-        return false;
+        return moves;
     }
 
 
@@ -405,7 +317,6 @@ const gameplayController = (() => {
     }
 
     const checkForWin = () => {
-        
         for (let winCondition of winConditions) {
             if (winCondition.every(i => gameBoard.getCell(i) === player1.getSign())) {
                 return true;
