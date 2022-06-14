@@ -10,3 +10,5 @@ Computer has four levels:
 
 Click on the blue or orange button to toggle player between a human player
 and an AI. 
+
+[live demo](https://tannerlankford1223.github.io/Tic-Tac-Toe/)
